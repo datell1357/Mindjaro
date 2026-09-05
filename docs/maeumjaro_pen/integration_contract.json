@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 5,
+  "assetType": "layered-continuous-raster",
+  "canvas": {
+    "width": 1024,
+    "height": 1536,
+    "format": "PNG",
+    "alpha": true
+  },
+  "assetDirectory": "../../assets/maeumjaro_pen",
+  "layerFrames": {
+    "ring": { "x": 362, "y": 136, "width": 300, "height": 112 },
+    "liquidWindow": { "x": 449, "y": 650, "width": 126, "height": 414 }
+  },
+  "layerOrder": [
+    "readyBase",
+    "windowEmpty",
+    "maskedLiquidFull",
+    "ringCylinder"
+  ],
+  "states": {
+    "locked": "maeumjaro_pen_2d_locked.png",
+    "ready": "maeumjaro_pen_2d_ready.png",
+    "complete": "maeumjaro_pen_2d_complete.png"
+  },
+  "componentLayers": {
+    "ringLocked": "maeumjaro_pen_2d_ring_locked.png",
+    "ringReady": "maeumjaro_pen_2d_ring_ready.png",
+    "windowEmpty": "maeumjaro_pen_2d_window_empty.png",
+    "liquidFull": "maeumjaro_pen_2d_liquid_full.png"
+  },
+  "recommendedFlow": [
+    {
+      "from": "locked",
+      "to": "ready",
+      "durationMs": 260,
+      "trigger": "horizontalSwipeRelease",
+      "directions": ["left", "right"],
+      "visualResponse": "singleRingCylinderRotatesAroundYAxisFromLockedFaceToReadyFace",
+      "opacityFade": false
+    },
+    {
+      "from": "ready",
+      "to": "locked",
+      "durationMs": 260,
+      "trigger": "horizontalSwipeReleaseBeforeHoldStarts",
+      "directions": ["left", "right"],
+      "visualResponse": "singleRingCylinderContinuesAroundYAxisFromReadyFaceToLockedFace",
+      "opacityFade": false
+    },
+    {
+      "from": "ready",
+      "to": "complete",
+      "trigger": "longPressProgress",
+      "visualResponse": "fluidMaskTranslateYEqualsContinuousProgressWithMovingMeniscus",
+      "discreteIntermediateFrames": false
+    }
+  ],
+  "intensity": {
+    "1": { "initialFill": 0.2, "durationMs": 1200 },
+    "2": { "initialFill": 0.4, "durationMs": 1500 },
+    "3": { "initialFill": 0.6, "durationMs": 1800 },
+    "4": { "initialFill": 0.8, "durationMs": 2200 },
+    "5": { "initialFill": 1.0, "durationMs": 3200 }
+  },
+  "inputBehavior": {
+    "lockedPointerDown": "beginHorizontalSwipe",
+    "lockedPointerMove": "rotateTopRingWithPointer",
+    "lockedPointerUp": "unlockWhenThresholdPassedOtherwiseReset",
+    "readyPointerDown": "waitForSwipeOrBeginHoldAfter120ms",
+    "readyPointerMoveBeforeHold": "cancelHoldAndRelockWhenHorizontalIntentExceeds8px",
+    "readyPointerUpAfterRelockThreshold": "commitLocked",
+    "holdingPointerUp": "pauseProgress",
+    "holdingPointerCancel": "pauseProgress",
+    "pausedPointerDown": "resumeHoldAfter120ms",
+    "background": "pauseWithoutCompletion",
+    "holdRequiresNewPointerSequence": true
+  },
+  "swipe": {
+    "minThresholdPx": 44,
+    "defaultThresholdPx": 56,
+    "responsiveThreshold": "min(56px, 18% of touch target width), never below 44px",
+    "horizontalDominanceRatio": 1.25,
+    "commitOn": "pointerUp",
+    "cancelOn": ["pointerCancel", "verticalDominantGesture", "belowThreshold"],
+    "directionRetention": "visualOnly"
+  },
+  "ringBehavior": {
+    "geometry": "perspectiveRotateYWithFrontAndBackFaces",
+    "unlockTurnDegrees": 180,
+    "relockTurnDegrees": 180,
+    "usesSlidingFaceSwap": false
+  },
+  "touchTarget": "entirePenAndLowerInteractionArea",
+  "completionPolicy": "recordOnceAtProgress1",
+  "liquidBehavior": {
+    "base": "staticEmptyWindow",
+    "fluid": "dedicatedFullLiquidLayer",
+    "drain": "maskAndCounterTranslatedFluidUpdateEveryAnimationFrame",
+    "surface": "subtleMeniscusAtCurrentLevel",
+    "usesIntermediateStateImages": false,
+    "maskOffsetPx": "progress * 414",
+    "remainingHeightPx": "(1 - progress) * 414"
+  },
+  "reducedMotion": "commitRingOnReleaseAndUpdateContinuousLiquidValueWithoutMeniscusMotion"
+}
