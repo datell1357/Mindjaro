@@ -15,6 +15,7 @@ xcuserdata/
 .omo/evidence/
 .omo/ulw-loop/
 .omo/start-work/
+/app/.omo/
 
 # Android local state and build products
 .gradle/

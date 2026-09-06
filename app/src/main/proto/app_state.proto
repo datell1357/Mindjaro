@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package com.maeumjaro.app.data.settings;
+
+option java_package = "com.maeumjaro.app.data.settings";
+option java_multiple_files = true;
+option java_outer_classname = "AppStateProto";
+
+enum PhraseTone {
+  PHRASE_TONE_UNSPECIFIED = 0;
+  PHRASE_TONE_GENTLE = 1;
+  PHRASE_TONE_NEUTRAL = 2;
+  PHRASE_TONE_FIRM = 3;
+  PHRASE_TONE_AUTOMATIC = 4;
+}
+
+enum EntitlementStatus {
+  ENTITLEMENT_STATUS_UNSPECIFIED = 0;
+  ENTITLEMENT_STATUS_FREE = 1;
+  ENTITLEMENT_STATUS_PRO = 2;
+  ENTITLEMENT_STATUS_REFRESH_PENDING = 3;
+}
+
+message WidgetPreset {
+  int32 app_widget_id = 1;
+  optional int32 intensity = 2;
+}
+
+message WidgetProjection {
+  string local_date = 1;
+  int32 count = 2;
+  int32 intensity_sum = 3;
+  int64 updated_at_epoch_millis = 4;
+}
+
+message EntitlementCache {
+  EntitlementStatus status = 1;
+  string product_id = 2;
+  int64 last_verified_at_epoch_millis = 3;
+}
+
+message AppState {
+  optional int32 intensity = 1;
+  int64 intensity_updated_at_epoch_millis = 2;
+  optional bool haptic_enabled = 3;
+  optional bool sound_enabled = 4;
+  optional bool reduced_motion_enabled = 5;
+  PhraseTone phrase_tone = 6;
+  bool onboarding_completed = 7;
+  bool widget_guide_completed = 8;
+  string theme_id = 9;
+  repeated WidgetPreset widget_presets = 10;
+  WidgetProjection widget_projection = 11;
+  EntitlementCache entitlement_cache = 12;
+}

@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/maeumjaro_pen_2d_complete,@drawable/maeumjaro_pen_2d_liquid_full,@drawable/maeumjaro_pen_2d_locked,@drawable/maeumjaro_pen_2d_ready,@drawable/maeumjaro_pen_2d_ring_locked,@drawable/maeumjaro_pen_2d_ring_ready,@drawable/maeumjaro_pen_2d_window_empty" />

@@ -1,0 +1,129 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "315143daaf82a9fb2a892f1de1a83e1a",
+    "entities": [
+      {
+        "tableName": "injection_events",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `started_at_utc` INTEGER NOT NULL, `completed_at_utc` INTEGER NOT NULL, `event_local_date` TEXT NOT NULL, `timezone_offset_minutes` INTEGER NOT NULL, `intensity` INTEGER NOT NULL, `source` TEXT NOT NULL, `phrase_id` TEXT NOT NULL, `animation_duration_ms` INTEGER NOT NULL, `interruption_count` INTEGER NOT NULL, `app_version` TEXT NOT NULL, `created_at_utc` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startedAtUtc",
+            "columnName": "started_at_utc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completedAtUtc",
+            "columnName": "completed_at_utc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eventLocalDate",
+            "columnName": "event_local_date",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timezoneOffsetMinutes",
+            "columnName": "timezone_offset_minutes",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "intensity",
+            "columnName": "intensity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "phraseId",
+            "columnName": "phrase_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "animationDurationMs",
+            "columnName": "animation_duration_ms",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "interruptionCount",
+            "columnName": "interruption_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "appVersion",
+            "columnName": "app_version",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtUtc",
+            "columnName": "created_at_utc",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_injection_events_event_local_date",
+            "unique": false,
+            "columnNames": [
+              "event_local_date"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_injection_events_event_local_date` ON `${TABLE_NAME}` (`event_local_date`)"
+          },
+          {
+            "name": "index_injection_events_completed_at_utc",
+            "unique": false,
+            "columnNames": [
+              "completed_at_utc"
+            ],
+            "orders": [
+              "DESC"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_injection_events_completed_at_utc` ON `${TABLE_NAME}` (`completed_at_utc` DESC)"
+          },
+          {
+            "name": "index_injection_events_event_local_date_completed_at_utc",
+            "unique": false,
+            "columnNames": [
+              "event_local_date",
+              "completed_at_utc"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_injection_events_event_local_date_completed_at_utc` ON `${TABLE_NAME}` (`event_local_date`, `completed_at_utc`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '315143daaf82a9fb2a892f1de1a83e1a')"
+    ]
+  }
+}
