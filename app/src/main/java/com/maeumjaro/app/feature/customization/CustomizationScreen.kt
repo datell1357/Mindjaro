@@ -16,23 +16,28 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.maeumjaro.app.core.PhraseCategory
+import com.maeumjaro.app.core.PhraseId
 import com.maeumjaro.app.core.PhraseTone
 import com.maeumjaro.app.feature.analytics.Entitlement
+import kotlinx.coroutines.launch
 
 @Composable
 fun CustomizationScreen(
     state: CustomizationUiState,
     onThemeSelected: (String) -> Unit,
     onSavePhrase: (String, PhraseTone, PhraseCategory) -> Unit,
+    onUpdatePhrase: (PhraseId, String, PhraseTone, PhraseCategory) -> Unit,
     onArchivePhrase: (com.maeumjaro.app.core.PhraseId) -> Unit,
     onPresetChanged: (Int, Int) -> Unit,
     onPresetDeleted: (Int) -> Unit,
@@ -42,7 +47,18 @@ fun CustomizationScreen(
     var phraseText by remember { mutableStateOf("") }
     var selectedTone by remember { mutableStateOf(PhraseTone.NEUTRAL) }
     var selectedCategory by remember { mutableStateOf(PhraseCategory.AUTONOMY) }
-    Column(modifier.padding(24.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    var editingPhraseId by remember { mutableStateOf<PhraseId?>(null) }
+    val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(state.phrases) {
+        if (editingPhraseId != null && state.phrases.none { it.id == editingPhraseId && !it.archived }) {
+            editingPhraseId = null
+            phraseText = ""
+            selectedTone = PhraseTone.NEUTRAL
+            selectedCategory = PhraseCategory.AUTONOMY
+        }
+    }
+    Column(modifier.padding(24.dp).verticalScroll(scrollState), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("나만의 설정", style = MaterialTheme.typography.headlineMedium)
         Text(if (state.entitlement == Entitlement.PRO) "Pro 설정을 사용할 수 있어요." else "기본 설정을 사용 중이에요. Pro에서 더 많은 설정을 열 수 있어요.")
         Text("테마", style = MaterialTheme.typography.titleLarge)
@@ -82,15 +98,44 @@ fun CustomizationScreen(
                 enabled = state.entitlement == Entitlement.PRO,
             )
         }
-        Button(
-            onClick = { onSavePhrase(phraseText, selectedTone, selectedCategory) },
-            enabled = state.entitlement == Entitlement.PRO && phraseText.isNotBlank(),
-        ) { Text("문구 저장") }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = {
+                    editingPhraseId?.let { onUpdatePhrase(it, phraseText, selectedTone, selectedCategory) }
+                        ?: onSavePhrase(phraseText, selectedTone, selectedCategory)
+                },
+                enabled = state.entitlement == Entitlement.PRO && phraseText.isNotBlank(),
+            ) { Text(if (editingPhraseId == null) "문구 저장" else "문구 수정 저장") }
+            if (editingPhraseId != null) {
+                OutlinedButton(onClick = {
+                    editingPhraseId = null
+                    phraseText = ""
+                    selectedTone = PhraseTone.NEUTRAL
+                    selectedCategory = PhraseCategory.AUTONOMY
+                }) { Text("취소") }
+            }
+        }
         state.phrases.filter { !it.archived }.forEach { phrase ->
             Card(Modifier.fillMaxWidth()) {
-                Row(Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(phrase.text, modifier = Modifier.weight(1f))
-                    OutlinedButton(onClick = { onArchivePhrase(phrase.id) }) { Text("보관") }
+                Column(Modifier.padding(16.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(phrase.text)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = {
+                            editingPhraseId = phrase.id
+                            phraseText = phrase.text
+                            selectedTone = phrase.tone
+                            selectedCategory = phrase.category
+                            scope.launch { scrollState.scrollTo(0) }
+                        }, modifier = Modifier.semantics {
+                            contentDescription = "문구 ${phrase.text} 편집"
+                        }) { Text("편집") }
+                        OutlinedButton(
+                            onClick = { onArchivePhrase(phrase.id) },
+                            modifier = Modifier.semantics {
+                                contentDescription = "문구 ${phrase.text} 보관"
+                            },
+                        ) { Text("보관") }
+                    }
                 }
             }
         }

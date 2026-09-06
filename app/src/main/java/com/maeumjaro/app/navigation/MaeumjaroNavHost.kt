@@ -71,6 +71,7 @@ import com.maeumjaro.app.feature.analytics.Entitlement
 import com.maeumjaro.app.feature.analytics.effectiveEntitlement
 import com.maeumjaro.app.feature.customization.CustomizationScreen
 import com.maeumjaro.app.feature.customization.PhraseSaveResult
+import com.maeumjaro.app.core.PhraseId
 import com.maeumjaro.app.billing.AndroidBillingActivityHandle
 import com.maeumjaro.app.feature.export.ExportShareIntent
 import com.maeumjaro.app.data.settings.PhraseTone as StoredPhraseTone
@@ -382,6 +383,18 @@ private fun CustomizationRoute(container: AppContainer, onBack: () -> Unit) {
                     scope.launch {
                         val result = container.customizationController.savePhrase(
                             text, tone, category, nowEpochMillis = container.clock.millis(),
+                        )
+                        state = when (result) {
+                            is PhraseSaveResult.Saved -> { phraseError = null; container.customizationController.load() }
+                            is PhraseSaveResult.Rejected -> { phraseError = "이 문구는 저장할 수 없어요: ${result.validation.reasons.joinToString(", ")}"; container.customizationController.load() }
+                            PhraseSaveResult.Locked -> { phraseError = "Pro에서 사용할 수 있어요."; container.customizationController.load() }
+                        }
+                    }
+                },
+                onUpdatePhrase = { id: PhraseId, text, tone, category ->
+                    scope.launch {
+                        val result = container.customizationController.savePhrase(
+                            text, tone, category, existingId = id, nowEpochMillis = container.clock.millis(),
                         )
                         state = when (result) {
                             is PhraseSaveResult.Saved -> { phraseError = null; container.customizationController.load() }
