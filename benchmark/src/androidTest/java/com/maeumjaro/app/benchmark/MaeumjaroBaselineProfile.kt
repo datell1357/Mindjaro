@@ -1,6 +1,5 @@
 package com.maeumjaro.app.benchmark
 
-import android.content.Intent
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.By
@@ -18,27 +17,37 @@ class MaeumjaroBaselineProfile {
     fun startupAndCoreNavigation() = profileRule.collect(TARGET_PACKAGE) {
         pressHome()
         startActivityAndWait()
-        startActivityAndWait(widgetLaunchIntent())
-        check(device.wait(Until.hasObject(By.text(INJECTION_TITLE)), APP_READY_TIMEOUT_MS)) {
-            "Verified widget launch did not resolve to the injection route"
+        if (device.wait(Until.hasObject(By.text(ONBOARDING_TITLE)), APP_READY_TIMEOUT_MS)) {
+            repeat(ONBOARDING_NEXT_COUNT) {
+                device.findObject(By.text(NEXT_LABEL)).click()
+                device.wait(Until.hasObject(By.text(ONBOARDING_STEP_TITLES[it + 1])), APP_READY_TIMEOUT_MS)
+            }
+            device.findObject(By.text(LATER_LABEL)).click()
         }
-    }
-
-    private fun widgetLaunchIntent(): Intent = Intent().apply {
-        setClassName(TARGET_PACKAGE, MAIN_ACTIVITY)
-        putExtra(SOURCE_EXTRA, WIDGET_SOURCE)
-        putExtra(DEBUG_VERIFIED_WIDGET_EXTRA, true)
-        putExtra(DEBUG_SEED_RETURNING_EXTRA, true)
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        check(device.wait(Until.hasObject(By.text(RECORDS_TITLE)), APP_READY_TIMEOUT_MS)) {
+            "App-icon startup did not resolve to the records route"
+        }
+        device.findObject(By.text(START_INJECTION_LABEL)).click()
+        check(device.wait(Until.hasObject(By.text(INJECTION_TITLE)), APP_READY_TIMEOUT_MS)) {
+            "Records route did not open the injection route"
+        }
     }
 
     private companion object {
         const val TARGET_PACKAGE = "com.maeumjaro.app"
-        const val MAIN_ACTIVITY = "$TARGET_PACKAGE.MainActivity"
-        const val SOURCE_EXTRA = "$TARGET_PACKAGE.SOURCE"
-        const val WIDGET_SOURCE = "widget"
-        const val DEBUG_VERIFIED_WIDGET_EXTRA = "$TARGET_PACKAGE.debug.VERIFIED_WIDGET"
-        const val DEBUG_SEED_RETURNING_EXTRA = "$TARGET_PACKAGE.debug.SEED_RETURNING"
+        val ONBOARDING_STEP_TITLES = listOf(
+            "마음을 멈추고 다시 선택해요",
+            "밀어서 열고, 새로 길게 눌러요",
+            "기본 강도를 정해요",
+            "안전 안내를 확인해요",
+            "필요한 순간에 바로 열어요",
+        )
+        const val ONBOARDING_TITLE = "마음을 멈추고 다시 선택해요"
+        const val NEXT_LABEL = "다음"
+        const val LATER_LABEL = "나중에"
+        const val ONBOARDING_NEXT_COUNT = 4
+        const val RECORDS_TITLE = "나의 기록"
+        const val START_INJECTION_LABEL = "마음 정리 시작"
         const val INJECTION_TITLE = "마음 정리"
         const val APP_READY_TIMEOUT_MS = 5_000L
     }

@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.protobuf)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.baselineprofile)
 }
 
 android {
@@ -78,6 +79,7 @@ dependencies {
     implementation(libs.androidx.datastore)
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.profileinstaller)
+    baselineProfile(project(":benchmark"))
     implementation(libs.android.billing)
     implementation(libs.protobuf.javalite)
     implementation(libs.kotlinx.serialization.json)

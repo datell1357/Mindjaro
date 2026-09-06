@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.android.test)
+    alias(libs.plugins.baselineprofile)
 }
 
 android {

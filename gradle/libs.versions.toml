@@ -22,6 +22,7 @@ protobuf-plugin = "0.10.0"
 serialization-json = "1.9.0"
 benchmark = "1.4.1"
 baselineprofile = "1.4.1"
+baselineprofile-plugin = "1.5.0-rc02"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
@@ -65,4 +66,4 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobuf-plugin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 android-test = { id = "com.android.test", version.ref = "agp" }
-baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
+baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile-plugin" }
