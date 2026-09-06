@@ -15,3 +15,14 @@ xcuserdata/
 .omo/evidence/
 .omo/ulw-loop/
 .omo/start-work/
+
+# Android local state and build products
+.gradle/
+.kotlin/
+.idea/
+app/build/
+local.properties
+*.iml
+captures/
+externalNativeBuild/
+.cxx/
