@@ -18,6 +18,9 @@ android {
         minSdk = 26
         targetSdk = 36
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // Macrobenchmark's reference device is an emulator; keep the result explicit
+        // about that limitation while allowing the runtime measurements to execute.
+        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR"
     }
 
     targetProjectPath = ":app"
