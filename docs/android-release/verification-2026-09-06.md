@@ -1,5 +1,31 @@
 # Android 후속 검증 — 2026-09-06
 
+## 추가 구현 및 재검증
+
+- 사용자 문구 편집 폼과 기존 ID 기반 저장을 연결했다. 문구별 편집·보관 버튼에 대상 문구 접근성 설명을 추가했다.
+- 작은 위젯에 불투명 배경과 명시적 글자색, 횟수·강도 합계를 적용했다. 고정 높이 안의 두 줄 강도 표시는 한 줄로 줄이고 고정/전역 구분은 접근성 설명에 보존했다.
+- release 코드·리소스 축소를 활성화했다.
+- 최종 수정 후 `:app:testDebugUnitTest :app:lintDebug :app:connectedDebugAndroidTest :app:assembleDebug :app:bundleRelease :benchmark:assembleBenchmark` 성공(6분 10초).
+- 단위 테스트 183개, API 29 기기 테스트 55개: 실패·오류·스킵 0. `git diff --check`와 오프라인·백업 정적 게이트도 통과했다.
+- 최종 비서명 AAB SHA-256: `7778b0109433ea22060958a3076c2eb04c554bff0785be4c58c20dc88f4698d4`.
+- 축소된 AAB에 `baseline.prof` 10,516바이트, `baseline.profm` 1,155바이트 및 난독화 매핑이 포함됐다. AAB 빌드는 출시 파생 APK의 실제 설치 검증을 대체하지 않는다.
+- API 37 홈 화면에서 compact 위젯 2개가 강도 5로 함께 갱신되고 실제 시작 버튼이 마음 정리 화면을 여는 것을 확인했다. 아래의 이전 위젯 목록 ANR 기록과 구분한다. 증거는 `.omo/evidence/finish-widget-runtime/01-warm-two-widgets-show-5.png`, `02-start-opens-injection.png`이다. 이후 에뮬레이터 재부팅으로 최종 큰 글꼴·크기 변경·cold 경로 수락은 별도 QA가 필요하다.
+- 첫 축소 빌드는 생성에 성공했지만 실제 실행에서 protobuf `intensity_` 필드 이름 변경으로 초기화 충돌했다. 따라서 위 해시의 AAB는 배포 대상으로 사용하지 않는다. 생성된 lite 메시지 필드 보존 규칙을 추가해 재검증한다.
+
+### 축소 실행 충돌 수정 후
+
+- protobuf lite 생성 메시지의 필드명을 보존해 시작 충돌을 수정했다.
+- 수정 후 AAB SHA-256: `c406aafd8bdef417fac7085b0d94a4b145a60613a306547ac2b04f02c49d9f4f`.
+- `baseline.prof` 10,593바이트와 `baseline.profm` 1,146바이트가 포함됐다.
+- 동일 축소 설정의 `benchmarkRelease` 앱에서 cold/warm 시작 각 10회 통과. 초기 표시 시간 중앙값은 cold 1,218.89ms, warm 251.15ms였다. API 29 에뮬레이터 측정이며 실제 기기 성능 목표 통과를 의미하지 않는다.
+- 위젯 cold/warm 성능 2개는 측정 기기에 실제 위젯이 없어 스킵됐다. 미검증 게이트로 유지한다.
+- 실제 강도 5 측정에서 완료 확인이 실패해 두 테스트 조건을 수정했다. 누르기 인식 지연 120ms를 포함하도록 입력을 3.3초에서 4초로 늘렸고, 저장 직후 자동 이동하는 완료 화면의 제목을 확인하도록 했다. 앱의 강도별 진행 시간과 완료 로직은 변경하지 않았다.
+- 수정 후 `intensityFiveFrameTiming` 단독 실행 통과(2분 58초, 5회 반복, 스킵 없음). 실제 unlock → hold → 저장 후 완료 화면까지 확인했다.
+- 프레임 CPU 시간 P50 56.63ms, P95 98.00ms, P99 139.19ms. 측정 실행은 성공했지만 이 결과를 60fps 또는 성능 목표 달성으로 표현하지 않는다. 실제 기기 프로파일링과 성능 수락은 남아 있다.
+- 마지막 회귀/축소 실행/프레임 로그와 프레임 JSON은 `.omo/evidence/finish-android-verification/`에 보존했다. API 37은 `sys.boot_completed=1` 이후에도 부팅 화면·런처 부재가 지속되어 추가 위젯 QA를 완료하지 못했다. 데이터 초기화는 하지 않았다.
+
+아래는 이전 프로파일 수집 시점 기록이며, 위 최종 AAB 해시·크기와 구분한다.
+
 ## 통과
 
 - `:app:generateReleaseBaselineProfile`: API 29 에뮬레이터 `AIQuotaFixQA20260905`에서 성공. 실제 온보딩 → 기록 → 마음 정리 진입 경로를 사용했다.
