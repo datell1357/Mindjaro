@@ -1,0 +1,116 @@
+{
+  "version" : "1.0",
+  "sourceLanguage" : "ko",
+  "strings" : {
+    "widget.accessibility.medium.hint" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강도 1에서 5를 직접 선택하거나 시작을 눌러 의식을 엽니다."
+          }
+        }
+      }
+    },
+    "widget.accessibility.medium.label" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마음자로 강도 선택 위젯"
+          }
+        }
+      }
+    },
+    "widget.accessibility.medium.value.format" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 강도 %lld, 오늘 %lld회"
+          }
+        }
+      }
+    },
+    "widget.accessibility.small.hint" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "빼기와 더하기로 강도를 바꾸고 시작을 눌러 의식을 엽니다."
+          }
+        }
+      }
+    },
+    "widget.accessibility.small.label" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마음자로 오늘 위젯"
+          }
+        }
+      }
+    },
+    "widget.accessibility.small.value.format" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강도 %lld, 오늘 %lld회"
+          }
+        }
+      }
+    },
+    "widget.brand" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마음자로"
+          }
+        }
+      }
+    },
+    "widget.configuration.description" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오늘의 마음 정리와 의식 시작"
+          }
+        }
+      }
+    },
+    "widget.start" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시작"
+          }
+        }
+      }
+    },
+    "widget.strength.format" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강도 %lld"
+          }
+        }
+      }
+    },
+    "widget.today.summary.format" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오늘 %lld회 · %@"
+          }
+        }
+      }
+    }
+  }
+}

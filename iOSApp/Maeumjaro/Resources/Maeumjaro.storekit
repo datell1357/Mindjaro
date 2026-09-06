@@ -1,0 +1,35 @@
+{
+  "identifier" : "MAEUMJARO-PRO-LOCAL",
+  "nonRenewingSubscriptions" : [
+  ],
+  "products" : [
+    {
+      "displayPrice" : "9,900",
+      "familyShareable" : false,
+      "internalID" : "MAEUMJARO-PRO-001",
+      "localizations" : [
+        {
+          "description" : "기록과 패턴 보기를 확장하는 1회 구매",
+          "displayName" : "마음자로 Pro",
+          "locale" : "ko_KR"
+        },
+        {
+          "description" : "A one-time purchase for expanded records and patterns",
+          "displayName" : "Maeumjaro Pro",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.yeoreum.maeumjaro.pro",
+      "referenceName" : "마음자로 Pro",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+  },
+  "subscriptionGroups" : [
+  ],
+  "version" : {
+    "major" : 2,
+    "minor" : 0
+  }
+}

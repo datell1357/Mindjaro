@@ -1,0 +1,195 @@
+name: Maeumjaro
+
+options:
+  developmentLanguage: ko
+  bundleIdPrefix: com.yeoreum
+  createIntermediateGroups: true
+  minimumXcodeGenVersion: 2.46.0
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "26.0"
+
+packages:
+  MaeumjaroCore:
+    path: Packages/MaeumjaroCore
+
+settings:
+  base:
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    SWIFT_VERSION: "6.0"
+    SWIFT_EMIT_LOC_STRINGS: YES
+    SUPPORTS_MACCATALYST: NO
+    TARGETED_DEVICE_FAMILY: "1"
+  configs:
+    Debug:
+      GCC_TREAT_WARNINGS_AS_ERRORS: YES
+      SWIFT_TREAT_WARNINGS_AS_ERRORS: YES
+    Release:
+      GCC_TREAT_WARNINGS_AS_ERRORS: YES
+      SWIFT_TREAT_WARNINGS_AS_ERRORS: YES
+
+targets:
+  Maeumjaro:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Maeumjaro
+    resources:
+      - path: Maeumjaro/Resources
+    info:
+      path: Maeumjaro/Info.plist
+      properties:
+        CFBundleDisplayName: "마음자로"
+        CFBundleURLTypes:
+          - CFBundleURLName: com.yeoreum.maeumjaro
+            CFBundleURLSchemes:
+              - maeumjaro
+        LSRequiresIPhoneOS: true
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+    entitlements:
+      path: Maeumjaro/Maeumjaro.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.yeoreum.maeumjaro
+    dependencies:
+      - target: MaeumjaroWidgetExtension
+      - package: MaeumjaroCore
+        products:
+          - MaeumjaroDomain
+          - MaeumjaroShared
+      - package: MaeumjaroCore
+        products:
+          - MaeumjaroDomain
+          - MaeumjaroShared
+          - MaeumjaroPersistence
+          - MaeumjaroIntents
+    configFiles:
+      Debug: Configurations/App-Debug.xcconfig
+      Release: Configurations/App-Release.xcconfig
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.yeoreum.maeumjaro
+
+  MaeumjaroWidgetExtension:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: MaeumjaroWidget
+      - path: Maeumjaro/DesignSystem/DesignTokens.swift
+      - path: Maeumjaro/DesignSystem/ThemePalette.swift
+    resources:
+      - path: MaeumjaroWidget/Resources
+    info:
+      path: MaeumjaroWidget/Info.plist
+      properties:
+        CFBundleDisplayName: "마음자로 위젯"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: MaeumjaroWidget/MaeumjaroWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.yeoreum.maeumjaro
+    dependencies:
+      - package: MaeumjaroCore
+        products:
+          - MaeumjaroDomain
+          - MaeumjaroShared
+          - MaeumjaroIntents
+    configFiles:
+      Debug: Configurations/Widget-Debug.xcconfig
+      Release: Configurations/Widget-Release.xcconfig
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.yeoreum.maeumjaro.widget
+
+  MaeumjaroAppTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: MaeumjaroAppTests
+    dependencies:
+      - target: Maeumjaro
+    configFiles:
+      Debug: Configurations/Tests.xcconfig
+      Release: Configurations/Tests.xcconfig
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.yeoreum.maeumjaro.tests
+
+  MaeumjaroWidgetTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: MaeumjaroWidgetTests
+      - path: MaeumjaroWidget/Resources/Localizable.xcstrings
+        buildPhase: resources
+      - path: MaeumjaroWidget/WidgetLocalizedStrings.swift
+      - path: MaeumjaroWidget/Timeline/MaeumjaroTimelineEntry.swift
+      - path: MaeumjaroWidget/Timeline/MaeumjaroTimelineProvider.swift
+      - path: MaeumjaroWidget/Views/WidgetAccessibilityContent.swift
+      - path: MaeumjaroWidget/Views/SmallWidgetView.swift
+      - path: MaeumjaroWidget/Views/MediumWidgetView.swift
+      - path: MaeumjaroWidget/Views/WidgetIntensityControl.swift
+      - path: Maeumjaro/DesignSystem/DesignTokens.swift
+      - path: Maeumjaro/DesignSystem/ThemePalette.swift
+    dependencies:
+      - target: MaeumjaroWidgetExtension
+      - package: MaeumjaroCore
+        products:
+          - MaeumjaroDomain
+          - MaeumjaroShared
+          - MaeumjaroIntents
+    configFiles:
+      Debug: Configurations/Tests.xcconfig
+      Release: Configurations/Tests.xcconfig
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.yeoreum.maeumjaro.widget.tests
+
+  MaeumjaroUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: MaeumjaroUITests
+    dependencies:
+      - target: Maeumjaro
+    configFiles:
+      Debug: Configurations/Tests.xcconfig
+      Release: Configurations/Tests.xcconfig
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.yeoreum.maeumjaro.uitests
+
+schemes:
+  Maeumjaro:
+    shared: true
+    build:
+      targets:
+        Maeumjaro: all
+        MaeumjaroWidgetExtension: all
+        MaeumjaroAppTests: [test]
+        MaeumjaroWidgetTests: [test]
+        MaeumjaroUITests: [test]
+    run:
+      config: Debug
+      storeKitConfiguration: Maeumjaro/Resources/Maeumjaro.storekit
+    test:
+      config: Debug
+      testPlans:
+        - path: Maeumjaro.xctestplan
+          defaultPlan: true
+        - path: MaeumjaroStoreKit.xctestplan
+    archive:
+      config: Release

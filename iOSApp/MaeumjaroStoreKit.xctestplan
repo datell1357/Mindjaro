@@ -1,0 +1,41 @@
+{
+  "configurations" : [
+    {
+      "id" : "7B7297E8-D34F-47A4-BAB9-8783AD56B253",
+      "name" : "StoreKit Debug",
+      "options" : {
+        "commandLineArgumentEntries" : [
+          {
+            "argument" : "-MaeumjaroFixture",
+            "enabled" : false
+          },
+          {
+            "argument" : "pro-boundary",
+            "enabled" : false
+          }
+        ]
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "storeKitConfiguration" : "Maeumjaro.storekit"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Maeumjaro.xcodeproj",
+        "identifier" : "90A7BF508BDE1526071F4A55",
+        "name" : "MaeumjaroAppTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Maeumjaro.xcodeproj",
+        "identifier" : "F810FD2556D8F49035CDF7B9",
+        "name" : "MaeumjaroWidgetTests"
+      }
+    }
+  ],
+  "version" : 1
+}
