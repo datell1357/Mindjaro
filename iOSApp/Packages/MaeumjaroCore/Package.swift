@@ -19,6 +19,7 @@ let package = Package(
     targets: [
         .target(
             name: "MaeumjaroDomain",
+            exclude: ["Resources/Localizable.xcstrings"],
             resources: [.process("Resources")]
         ),
         .target(
@@ -29,11 +30,13 @@ let package = Package(
         .target(
             name: "MaeumjaroPersistence",
             dependencies: ["MaeumjaroDomain", "MaeumjaroShared"],
+            exclude: ["Resources/Localizable.xcstrings"],
             resources: [.process("Resources")]
         ),
         .target(
             name: "MaeumjaroIntents",
             dependencies: ["MaeumjaroDomain", "MaeumjaroShared"],
+            exclude: ["Resources/Localizable.xcstrings"],
             resources: [.process("Resources")]
         ),
         .executableTarget(

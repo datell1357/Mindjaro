@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>persistence.applicationSupportUnavailable</key>
+	<string>앱 저장 공간을 사용할 수 없습니다.</string>
+	<key>persistence.backupExclusionFailed</key>
+	<string>저장 백업 제외를 확인할 수 없습니다: %@</string>
+	<key>persistence.catalogDecodingFailed</key>
+	<string>문구 카탈로그를 읽을 수 없습니다.</string>
+	<key>persistence.catalogUnavailable</key>
+	<string>문구 카탈로그를 사용할 수 없습니다.</string>
+	<key>persistence.containerOpenFailed</key>
+	<string>저장 컨테이너를 열 수 없습니다: %@</string>
+	<key>persistence.deletionConfirmationRequired</key>
+	<string>삭제하려면 확인 토큰이 필요합니다.</string>
+	<key>persistence.deletionScopeEmpty</key>
+	<string>삭제 범위가 비어 있습니다.</string>
+	<key>persistence.invalidStoredValue</key>
+	<string>저장된 %@ 값의 %@ 항목이 올바르지 않습니다.</string>
+	<key>persistence.migrationFailed</key>
+	<string>저장소 마이그레이션에 실패했습니다: %@</string>
+	<key>persistence.migrationUnsupported</key>
+	<string>저장소 마이그레이션을 지원하지 않습니다: %@</string>
+	<key>persistence.storeDirectoryCreationFailed</key>
+	<string>저장 폴더를 만들 수 없습니다: %@</string>
+</dict>
+</plist>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>intent.description</key>
+	<string>마음자로 위젯의 현재 강도를 변경합니다.</string>
+	<key>intent.dialog.changed</key>
+	<string>강도를 %lld로 변경했습니다.</string>
+	<key>intent.dialog.unchanged</key>
+	<string>현재 강도는 %lld입니다.</string>
+	<key>intent.error.dependencyUnavailable</key>
+	<string>공유 강도 저장소를 사용할 수 없습니다.</string>
+	<key>intent.error.invalidDelta</key>
+	<string>강도 변경은 한 단계씩만 가능합니다. 입력값: %lld</string>
+	<key>intent.error.invalidParameters</key>
+	<string>강도 하나를 지정하거나 한 단계만 변경해 주세요.</string>
+	<key>intent.error.invalidTarget</key>
+	<string>강도는 1에서 5 사이여야 합니다. 입력값: %lld</string>
+	<key>intent.error.persistFailed</key>
+	<string>강도를 저장하지 못했습니다. 현재 저장 상태를 확인하지 못했습니다.</string>
+	<key>intent.error.readBackMismatch</key>
+	<string>저장한 강도와 읽은 강도가 일치하지 않습니다. 읽은 강도는 %lld입니다.</string>
+	<key>intent.error.readBackUnavailable</key>
+	<string>저장한 강도의 결과를 확인하지 못했습니다. 현재 저장 상태를 확인하지 못했습니다.</string>
+	<key>intent.parameter.delta</key>
+	<string>강도 변경량</string>
+	<key>intent.parameter.target</key>
+	<string>목표 강도</string>
+	<key>intent.title</key>
+	<string>강도 변경</string>
+</dict>
+</plist>
