@@ -947,6 +947,17 @@
         }
       }
     },
+    "1. 시작을 누르고\n2. 화면을 가로로 천천히 쓸어 흐름을 따라가고\n3. 새로 가볍게 눌러 잠깐 멈췄다가 놓은 뒤 기록을 확인해요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. 시작을 누르고\n2. 화면을 가로로 천천히 쓸어 흐름을 따라가고\n3. 새로 가볍게 눌러 잠깐 멈췄다가 놓은 뒤 기록을 확인해요."
+          }
+        }
+      }
+    },
     "기본 강도를 골라 주세요": {
       "extractionState": "manual",
       "localizations": {
@@ -1416,6 +1427,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "테마"
+          }
+        }
+      }
+    },
+    "Quiet Ivory": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quiet Ivory"
+          }
+        }
+      }
+    },
+    "Midnight Ink": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Midnight Ink"
+          }
+        }
+      }
+    },
+    "Forest Mist": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forest Mist"
           }
         }
       }

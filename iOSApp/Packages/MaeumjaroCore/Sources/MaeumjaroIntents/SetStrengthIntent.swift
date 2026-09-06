@@ -51,14 +51,14 @@ extension SetStrengthIntentError: LocalizedError {
 public struct SetStrengthIntent: AppIntent {
     public typealias PerformResult = IntentResultContainer<Int, Never, Never, IntentDialog>
 
-    public static let title: LocalizedStringResource = "강도 변경"
-    public static let description = IntentDescription("마음자로 위젯의 현재 강도를 변경합니다.")
+    public static let title = LocalizedStringResource("intent.title", defaultValue: "강도 변경", bundle: .module)
+    public static let description = IntentDescription(LocalizedStringResource("intent.description", defaultValue: "마음자로 위젯의 현재 강도를 변경합니다.", bundle: .module))
     public static let openAppWhenRun = false
 
-    @Parameter(title: "목표 강도")
+    @Parameter(title: LocalizedStringResource("intent.parameter.target", defaultValue: "목표 강도", bundle: .module))
     public var target: Int?
 
-    @Parameter(title: "강도 변경량")
+    @Parameter(title: LocalizedStringResource("intent.parameter.delta", defaultValue: "강도 변경량", bundle: .module))
     public var delta: Int?
 
     private let dependencies: IntentDependencies

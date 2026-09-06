@@ -1,6 +1,10 @@
 {
   "sourceLanguage" : "ko",
   "strings" : {
+    "intent.title" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "강도 변경" } } } },
+    "intent.description" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "마음자로 위젯의 현재 강도를 변경합니다." } } } },
+    "intent.parameter.target" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "목표 강도" } } } },
+    "intent.parameter.delta" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "강도 변경량" } } } },
     "intent.error.invalidParameters" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "강도 하나를 지정하거나 한 단계만 변경해 주세요." } } } },
     "intent.error.invalidTarget" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "강도는 1에서 5 사이여야 합니다. 입력값: %lld" } } } },
     "intent.error.invalidDelta" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "강도 변경은 한 단계씩만 가능합니다. 입력값: %lld" } } } },

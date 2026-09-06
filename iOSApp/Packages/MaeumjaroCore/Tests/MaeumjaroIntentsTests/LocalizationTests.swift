@@ -1,5 +1,20 @@
 import Testing
-import MaeumjaroIntents
+import Foundation
+@testable import MaeumjaroIntents
+
+@Test
+func intentMetadataIsPresentInPackageCatalog() {
+    let expected = [
+        "intent.title": "강도 변경",
+        "intent.description": "마음자로 위젯의 현재 강도를 변경합니다.",
+        "intent.parameter.target": "목표 강도",
+        "intent.parameter.delta": "강도 변경량"
+    ]
+    for (key, value) in expected {
+        #expect(Bundle.module.localizedString(forKey: key, value: "__MISSING__", table: "Localizable") == value)
+    }
+    #expect(String(localized: SetStrengthIntent.title) == "강도 변경")
+}
 
 @Test
 func intentErrorsKeepSafeKoreanUserFacingText() {
