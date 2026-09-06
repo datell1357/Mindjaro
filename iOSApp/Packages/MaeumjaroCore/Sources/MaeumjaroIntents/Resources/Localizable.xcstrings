@@ -1,0 +1,15 @@
+{
+  "sourceLanguage" : "ko",
+  "strings" : {
+    "intent.error.invalidParameters" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "강도 하나를 지정하거나 한 단계만 변경해 주세요." } } } },
+    "intent.error.invalidTarget" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "강도는 1에서 5 사이여야 합니다. 입력값: %lld" } } } },
+    "intent.error.invalidDelta" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "강도 변경은 한 단계씩만 가능합니다. 입력값: %lld" } } } },
+    "intent.error.dependencyUnavailable" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "공유 강도 저장소를 사용할 수 없습니다." } } } },
+    "intent.error.persistFailed" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "강도를 저장하지 못했습니다. 현재 저장 상태를 확인하지 못했습니다." } } } },
+    "intent.error.readBackMismatch" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장한 강도와 읽은 강도가 일치하지 않습니다. 읽은 강도는 %lld입니다." } } } },
+    "intent.error.readBackUnavailable" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장한 강도의 결과를 확인하지 못했습니다. 현재 저장 상태를 확인하지 못했습니다." } } } },
+    "intent.dialog.unchanged" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "현재 강도는 %lld입니다." } } } },
+    "intent.dialog.changed" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "강도를 %lld로 변경했습니다." } } } }
+  },
+  "version" : "1.0"
+}

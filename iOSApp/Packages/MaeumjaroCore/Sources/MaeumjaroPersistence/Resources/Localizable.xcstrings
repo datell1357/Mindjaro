@@ -1,0 +1,17 @@
+{
+  "sourceLanguage" : "ko",
+  "strings" : {
+    "persistence.applicationSupportUnavailable" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 저장 공간을 사용할 수 없습니다." } } } },
+    "persistence.storeDirectoryCreationFailed" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장 폴더를 만들 수 없습니다: %@" } } } },
+    "persistence.backupExclusionFailed" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장 백업 제외를 확인할 수 없습니다: %@" } } } },
+    "persistence.containerOpenFailed" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장 컨테이너를 열 수 없습니다: %@" } } } },
+    "persistence.migrationUnsupported" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장소 마이그레이션을 지원하지 않습니다: %@" } } } },
+    "persistence.migrationFailed" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장소 마이그레이션에 실패했습니다: %@" } } } },
+    "persistence.invalidStoredValue" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장된 %@ 값의 %@ 항목이 올바르지 않습니다." } } } },
+    "persistence.catalogUnavailable" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "문구 카탈로그를 사용할 수 없습니다." } } } },
+    "persistence.catalogDecodingFailed" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "문구 카탈로그를 읽을 수 없습니다." } } } },
+    "persistence.deletionConfirmationRequired" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "삭제하려면 확인 토큰이 필요합니다." } } } },
+    "persistence.deletionScopeEmpty" : { "localizations" : { "ko" : { "stringUnit" : { "state" : "translated", "value" : "삭제 범위가 비어 있습니다." } } } }
+  },
+  "version" : "1.0"
+}
