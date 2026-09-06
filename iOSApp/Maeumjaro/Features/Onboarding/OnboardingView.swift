@@ -4,6 +4,8 @@ import MaeumjaroDomain
 struct OnboardingView: View {
     @State private var model: OnboardingViewModel
     let onComplete: (AppSettings) -> Void
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
     init(model: OnboardingViewModel, onComplete: @escaping (AppSettings) -> Void) {
         _model = State(initialValue: model); self.onComplete = onComplete
@@ -11,21 +13,25 @@ struct OnboardingView: View {
 
     var body: some View {
         VStack(spacing: DesignTokens.spacing5) {
-            ProgressView(value: Double(model.step.number), total: 6).accessibilityLabel(String(localized: "온보딩 \(model.step.number)단계"))
+            ProgressView(value: Double(model.step.number), total: 6)
+                .tint(resolvedPalette.accent.color)
+                .accessibilityLabel(String(localized: "온보딩 \(model.step.number)단계"))
             Group { content }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             if let error = model.errorMessage { Text(error).font(DesignTokens.font(for: .secondary)).foregroundStyle(.red) }
             if model.step == .widgetHelp {
                 Button("완료") { Task { if let settings = await model.advance() { onComplete(settings) } } }
-                    .buttonStyle(.borderedProminent).frame(maxWidth: .infinity, minHeight: DesignTokens.minimumTouchTarget).accessibilityIdentifier("onboarding-finish")
+                    .buttonStyle(.borderedProminent).foregroundStyle(resolvedPalette.accentForeground.color).frame(maxWidth: .infinity, minHeight: DesignTokens.minimumTouchTarget).accessibilityIdentifier("onboarding-finish")
                 Button("나중에") { Task { if let settings = await model.skipWidgetHelp() { onComplete(settings) } } }.frame(minHeight: DesignTokens.minimumTouchTarget)
             } else {
                 Button(LocalizedStringKey(model.step == .purpose ? "시작하기" : "다음")) { Task { if let settings = await model.advance() { onComplete(settings) } } }
-                    .buttonStyle(.borderedProminent).frame(maxWidth: .infinity, minHeight: DesignTokens.minimumTouchTarget).accessibilityIdentifier("onboarding-next")
+                    .buttonStyle(.borderedProminent).foregroundStyle(resolvedPalette.accentForeground.color).frame(maxWidth: .infinity, minHeight: DesignTokens.minimumTouchTarget).accessibilityIdentifier("onboarding-next")
             }
         }
         .padding(DesignTokens.spacing6)
-        .background(ThemePalette.quietIvory.background.color.ignoresSafeArea())
+        .foregroundStyle(resolvedPalette.ink.color)
+        .tint(resolvedPalette.accent.color)
+        .background(resolvedPalette.background.color.ignoresSafeArea())
     }
 
     @ViewBuilder private var content: some View {
@@ -53,8 +59,12 @@ struct OnboardingView: View {
         case .safety:
             step("안전 안내", "마음자로는 진단·치료·의학적 조언을 제공하지 않아요. 불편하거나 걱정되는 상황에서는 신뢰할 수 있는 사람 또는 전문가와 상의하세요.")
         case .widgetHelp:
-            WidgetHelpView()
+            WidgetHelpView(palette: resolvedPalette)
         }
+    }
+
+    private var resolvedPalette: ThemePalette {
+        ThemePalette.palette(for: model.settings.themeID, colorScheme: colorScheme, contrast: colorSchemeContrast)
     }
 
     private func step(_ title: String, _ message: String) -> some View {
