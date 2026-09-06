@@ -10,6 +10,11 @@ import androidx.compose.runtime.getValue
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalSize
+import androidx.glance.background
+import androidx.glance.unit.ColorProvider
+import androidx.glance.text.TextStyle
+import androidx.glance.text.TextAlign
+import androidx.compose.ui.graphics.Color
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
@@ -189,24 +194,25 @@ private fun CompactWidgetContent(state: WidgetState) {
         GlanceModifier.clickable(actionRunCallback<ChangeWidgetIntensityAction>(actionParametersOf(WidgetParameters.delta to 1)))
     } else GlanceModifier
     Column(
-        modifier = GlanceModifier.fillMaxSize().padding(4.dp),
+        modifier = GlanceModifier.fillMaxSize().background(Color(0xFFFFFBF5)).padding(4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("마음자로")
-        Text("${state.todayCount}회 · ${if (state.usesPreset) "고정" else "전역"} 강도 ${state.intensity}")
+        WidgetText("${state.todayCount}회 · 합계 ${state.todayIntensitySum}")
         Spacer(GlanceModifier.height(2.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("−", GlanceModifier.width(48.dp).height(48.dp).then(decrease).semantics {
+            WidgetText("−", GlanceModifier.width(48.dp).height(48.dp).then(decrease).semantics {
                 contentDescription = "강도 낮추기"
             })
-            Text("${state.intensity}", GlanceModifier.width(40.dp).height(48.dp))
-            Text("+", GlanceModifier.width(48.dp).height(48.dp).then(increase).semantics {
+            WidgetText("${state.intensity}", GlanceModifier.width(40.dp).height(48.dp).semantics {
+                contentDescription = "${if (state.usesPreset) "고정" else "전역"} 강도 ${state.intensity}"
+            })
+            WidgetText("+", GlanceModifier.width(48.dp).height(48.dp).then(increase).semantics {
                 contentDescription = "강도 높이기"
             })
         }
         Spacer(GlanceModifier.height(2.dp))
-        Text("시작", GlanceModifier.width(120.dp).height(48.dp)
+        WidgetText("시작", GlanceModifier.width(120.dp).height(48.dp)
             .clickable(actionRunCallback<StartWidgetAction>())
             .semantics { contentDescription = "마음자로 시작" })
     }
@@ -215,13 +221,13 @@ private fun CompactWidgetContent(state: WidgetState) {
 @Composable
 private fun WideWidgetContent(state: WidgetState) {
     Column(
-        modifier = GlanceModifier.fillMaxSize().padding(4.dp),
+        modifier = GlanceModifier.fillMaxSize().background(Color(0xFFFFFBF5)).padding(4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("마음자로 · 오늘의 기록")
+        WidgetText("마음자로 · 오늘의 기록")
         Spacer(GlanceModifier.height(2.dp))
-        Text(state.summary)
+        WidgetText(state.summary)
         Spacer(GlanceModifier.height(2.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             val decrease = if (state.intensity > 1) {
@@ -230,21 +236,26 @@ private fun WideWidgetContent(state: WidgetState) {
             val increase = if (state.intensity < 5) {
                 GlanceModifier.clickable(actionRunCallback<ChangeWidgetIntensityAction>(actionParametersOf(WidgetParameters.delta to 1)))
             } else GlanceModifier
-            Text("−", GlanceModifier.width(48.dp).height(48.dp).then(decrease).semantics {
+            WidgetText("−", GlanceModifier.width(48.dp).height(48.dp).then(decrease).semantics {
                 contentDescription = "강도 낮추기"
             })
             Spacer(GlanceModifier.width(12.dp))
-            Text(if (state.usesPreset) "고정 강도 ${state.intensity}" else "전역 강도 ${state.intensity}")
+            WidgetText(if (state.usesPreset) "고정 강도 ${state.intensity}" else "전역 강도 ${state.intensity}")
             Spacer(GlanceModifier.width(12.dp))
-            Text("+", GlanceModifier.width(48.dp).height(48.dp).then(increase).semantics {
+            WidgetText("+", GlanceModifier.width(48.dp).height(48.dp).then(increase).semantics {
                 contentDescription = "강도 높이기"
             })
         }
         Spacer(GlanceModifier.height(2.dp))
-        Text("시작", GlanceModifier.width(120.dp).height(48.dp)
+        WidgetText("시작", GlanceModifier.width(120.dp).height(48.dp)
             .clickable(actionRunCallback<StartWidgetAction>())
             .semantics { contentDescription = "마음자로 시작" })
     }
+}
+
+@Composable
+private fun WidgetText(text: String, modifier: GlanceModifier = GlanceModifier) {
+    Text(text, modifier, style = TextStyle(color = ColorProvider(Color(0xFF14263D)), textAlign = TextAlign.Center), maxLines = 1)
 }
 
 /** Single seam used by completion/foreground code to refresh every installed instance. */
