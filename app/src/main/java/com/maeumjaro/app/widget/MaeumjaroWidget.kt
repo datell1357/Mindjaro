@@ -16,6 +16,7 @@ import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.provideContent
@@ -31,6 +32,7 @@ import androidx.glance.semantics.contentDescription
 import androidx.glance.semantics.semantics
 import androidx.glance.text.Text
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.DpSize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CoroutineScope
@@ -58,6 +60,13 @@ object WidgetActionContract {
 }
 
 class MaeumjaroWidget : GlanceAppWidget() {
+    override val sizeMode: SizeMode = SizeMode.Responsive(
+        setOf(
+            DpSize(160.dp, 160.dp),
+            DpSize(250.dp, 160.dp),
+        ),
+    )
+
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val appWidgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
         val gateway = WidgetStateFactory.create(context, appWidgetId = appWidgetId)
@@ -164,15 +173,56 @@ class WidgetLaunchPipeline(
 private fun MaeumjaroWidgetContent(gateway: WidgetStateGateway) {
     val state by gateway.state.collectAsState(initial = WidgetState(3, 0, 0))
     val layout = WidgetLayoutSpec.forWidthDp(LocalSize.current.width.value.toInt())
+    if (layout == WidgetLayout.TWO_BY_TWO) {
+        CompactWidgetContent(state)
+    } else {
+        WideWidgetContent(state)
+    }
+}
+
+@Composable
+private fun CompactWidgetContent(state: WidgetState) {
+    val decrease = if (state.intensity > 1) {
+        GlanceModifier.clickable(actionRunCallback<ChangeWidgetIntensityAction>(actionParametersOf(WidgetParameters.delta to -1)))
+    } else GlanceModifier
+    val increase = if (state.intensity < 5) {
+        GlanceModifier.clickable(actionRunCallback<ChangeWidgetIntensityAction>(actionParametersOf(WidgetParameters.delta to 1)))
+    } else GlanceModifier
     Column(
-        modifier = GlanceModifier.fillMaxSize().padding(12.dp),
+        modifier = GlanceModifier.fillMaxSize().padding(4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(if (layout == WidgetLayout.TWO_BY_TWO) "마음자로" else "마음자로 · 오늘의 기록")
-        Spacer(GlanceModifier.height(4.dp))
-        Text(if (layout == WidgetLayout.TWO_BY_TWO) "${state.todayCount}회" else state.summary)
-        Spacer(GlanceModifier.height(4.dp))
+        Text("마음자로")
+        Text("${state.todayCount}회 · ${if (state.usesPreset) "고정" else "전역"} 강도 ${state.intensity}")
+        Spacer(GlanceModifier.height(2.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("−", GlanceModifier.width(48.dp).height(48.dp).then(decrease).semantics {
+                contentDescription = "강도 낮추기"
+            })
+            Text("${state.intensity}", GlanceModifier.width(40.dp).height(48.dp))
+            Text("+", GlanceModifier.width(48.dp).height(48.dp).then(increase).semantics {
+                contentDescription = "강도 높이기"
+            })
+        }
+        Spacer(GlanceModifier.height(2.dp))
+        Text("시작", GlanceModifier.width(120.dp).height(48.dp)
+            .clickable(actionRunCallback<StartWidgetAction>())
+            .semantics { contentDescription = "마음자로 시작" })
+    }
+}
+
+@Composable
+private fun WideWidgetContent(state: WidgetState) {
+    Column(
+        modifier = GlanceModifier.fillMaxSize().padding(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text("마음자로 · 오늘의 기록")
+        Spacer(GlanceModifier.height(2.dp))
+        Text(state.summary)
+        Spacer(GlanceModifier.height(2.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             val decrease = if (state.intensity > 1) {
                 GlanceModifier.clickable(actionRunCallback<ChangeWidgetIntensityAction>(actionParametersOf(WidgetParameters.delta to -1)))
@@ -180,29 +230,20 @@ private fun MaeumjaroWidgetContent(gateway: WidgetStateGateway) {
             val increase = if (state.intensity < 5) {
                 GlanceModifier.clickable(actionRunCallback<ChangeWidgetIntensityAction>(actionParametersOf(WidgetParameters.delta to 1)))
             } else GlanceModifier
-            Text(
-                "−",
-                modifier = GlanceModifier.width(48.dp).height(48.dp).then(decrease).semantics {
-                    contentDescription = "강도 낮추기"
-                },
-            )
+            Text("−", GlanceModifier.width(48.dp).height(48.dp).then(decrease).semantics {
+                contentDescription = "강도 낮추기"
+            })
             Spacer(GlanceModifier.width(12.dp))
             Text(if (state.usesPreset) "고정 강도 ${state.intensity}" else "전역 강도 ${state.intensity}")
             Spacer(GlanceModifier.width(12.dp))
-            Text(
-                "+",
-                modifier = GlanceModifier.width(48.dp).height(48.dp).then(increase).semantics {
-                    contentDescription = "강도 높이기"
-                },
-            )
+            Text("+", GlanceModifier.width(48.dp).height(48.dp).then(increase).semantics {
+                contentDescription = "강도 높이기"
+            })
         }
-        Spacer(GlanceModifier.height(4.dp))
-        Text(
-            "시작",
-            modifier = GlanceModifier.width(120.dp).height(48.dp)
-                .clickable(actionRunCallback<StartWidgetAction>())
-                .semantics { contentDescription = "마음자로 시작" },
-        )
+        Spacer(GlanceModifier.height(2.dp))
+        Text("시작", GlanceModifier.width(120.dp).height(48.dp)
+            .clickable(actionRunCallback<StartWidgetAction>())
+            .semantics { contentDescription = "마음자로 시작" })
     }
 }
 
