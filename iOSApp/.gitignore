@@ -1,0 +1,5 @@
+# Local package verification artifacts are not application sources.
+**/.omo/
+**/.build/
+**/xcuserdata/
+*.xcresult/
