@@ -69,6 +69,25 @@ final class HistoryCommerceUITests: XCTestCase {
         app.staticTexts["기록, \(value)"]
     }
 
+    func testFreeThirtyDayGridOpensDateDetailWithoutPro() {
+        let app = launch("empty")
+        guard completeOnboarding(app) else { return }
+        app.tabBars.buttons["기록"].tap()
+        let grid = app.scrollViews["free-history-grid"]
+        guard require(grid) else { return }
+        for _ in 0..<4 where !grid.isHittable { app.swipeUp() }
+        let date = grid.buttons.matching(NSPredicate(format: "label MATCHES %@", "[0-9]{4}-[0-9]{2}-[0-9]{2}")).firstMatch
+        guard require(date) else { return }
+        let selected = date.label
+        let capture = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        capture.name = "free-thirty-day-grid"
+        capture.lifetime = .keepAlways
+        add(capture)
+        date.tap()
+        XCTAssertTrue(app.navigationBars[selected].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["강도 합, 0"].exists)
+    }
+
     func testHistoryIndividualDeleteCancelAndConfirmPersistsAfterRelaunch() {
         let fixtureID = UUID()
         let app = launch("pro-boundary", id: fixtureID)
@@ -111,8 +130,9 @@ final class HistoryCommerceUITests: XCTestCase {
     func testOfflinePaywallReportsStoreFailureAndRemainsFree() {
         let app = launch("offline")
         guard completeOnboarding(app) else { return }
-        require(app.tabBars.buttons["설정"])
-        app.tabBars.buttons["설정"].tap()
+        app.tabBars.buttons["홈"].tap()
+        require(app.buttons["settings-open"])
+        app.buttons["settings-open"].tap()
         let pro = app.buttons["Pro 기능 보기"]
         for _ in 0..<8 where !pro.isHittable { app.swipeUp() }
         guard require(pro) else { return }

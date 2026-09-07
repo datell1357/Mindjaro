@@ -30,15 +30,16 @@ public struct FeatureAccessPolicy: Equatable, Hashable, Sendable {
     public var isPro: Bool { entitlement == .pro }
 
     public func canAccess(_ feature: FeatureAccess) -> Bool {
-        guard isPro else {
-            switch feature {
-            case .todaySummary, .recentRecords, .basicHistory:
-                return true
-            case .heatmap, .detailedPatterns, .comparison, .csvExport, .jsonExport, .themes:
-                return false
-            }
+        if isPro {
+            return true
         }
-        return true
+
+        switch (entitlement, feature) {
+        case (.free, .todaySummary), (.free, .recentRecords), (.free, .basicHistory), (.free, .heatmap):
+            return true
+        default:
+            return false
+        }
     }
 
     public func historyWindow(today: String) -> HistoryWindow? {

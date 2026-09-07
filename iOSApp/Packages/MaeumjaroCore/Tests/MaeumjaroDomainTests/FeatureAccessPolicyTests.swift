@@ -13,10 +13,12 @@ func freePolicyShowsOnlyThirtyTodayInclusiveLocalDates() throws {
     #expect(window.dates.count == 30)
     #expect(policy.canAccess(.todaySummary))
     #expect(policy.canAccess(.basicHistory))
-    #expect(!policy.canAccess(.heatmap))
+    #expect(policy.canAccess(.heatmap))
     #expect(!policy.canAccess(.detailedPatterns))
+    #expect(!policy.canAccess(.comparison))
     #expect(!policy.canAccess(.csvExport))
     #expect(!policy.canAccess(.jsonExport))
+    #expect(!policy.canAccess(.themes))
 }
 
 @Test
