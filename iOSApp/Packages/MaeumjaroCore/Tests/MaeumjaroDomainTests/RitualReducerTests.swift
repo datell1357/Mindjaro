@@ -7,7 +7,7 @@ import MaeumjaroDomain
 func intensityProfilesUseTheApprovedInitialFillDurationAndPulseTable() {
     let profiles = Intensity.allCases.map(IntensityProfile.init(intensity:))
 
-    #expect(profiles.map(\.initialFill) == [0.2, 0.4, 0.6, 0.8, 1.0])
+    #expect(profiles.map(\.initialFill) == [1.0, 1.0, 1.0, 1.0, 1.0])
     #expect(profiles.map(\.durationMilliseconds) == [1200, 1500, 1800, 2200, 3200])
     #expect(profiles.map(\.progressPulseCount) == [1, 2, 3, 4, 5])
     #expect(profiles[2].progressPulseThresholds == [0.25, 0.5, 0.75])

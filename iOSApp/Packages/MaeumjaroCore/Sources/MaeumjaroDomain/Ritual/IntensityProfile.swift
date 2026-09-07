@@ -8,17 +8,17 @@ public struct IntensityProfile: Equatable, Sendable {
     public let progressPulseThresholds: [Double]
 
     public init(intensity: Intensity) {
-        let value: (fill: Double, duration: Int) = switch intensity.rawValue {
-        case 1: (0.2, 1200)
-        case 2: (0.4, 1500)
-        case 3: (0.6, 1800)
-        case 4: (0.8, 2200)
-        case 5: (1.0, 3200)
-        default: (0.6, 1800)
+        let duration: Int = switch intensity.rawValue {
+        case 1: 1200
+        case 2: 1500
+        case 3: 1800
+        case 4: 2200
+        case 5: 3200
+        default: 1800
         }
         self.intensity = intensity
-        initialFill = value.fill
-        durationMilliseconds = value.duration
+        initialFill = 1.0
+        durationMilliseconds = duration
         progressPulseCount = intensity.rawValue
         progressPulseThresholds = (1...intensity.rawValue).map {
             Double($0) / Double(intensity.rawValue + 1)

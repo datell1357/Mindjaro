@@ -130,6 +130,8 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - path: MaeumjaroWidgetTests
+      - path: MaeumjaroWidget/Resources/Assets.xcassets
+        buildPhase: resources
       - path: MaeumjaroWidget/Resources/Localizable.xcstrings
         buildPhase: resources
       - path: MaeumjaroWidget/WidgetLocalizedStrings.swift

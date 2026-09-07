@@ -69,6 +69,21 @@ struct AppShellView: View {
         .sheet(item: $presentedSheet, onDismiss: { Task { await loadSettings() } }) { sheet in
             NavigationStack {
                 switch sheet {
+                case .settings:
+                    if let settings {
+                        SettingsView(model: SettingsViewModel(initialSettings: settings, settingsRepository: dependencies.settingsRepository, strengthStore: dependencies.strengthStore, onStrengthChanged: { try dependencies.projection.strengthChanged(to: $0) }), onPro: { presentedSheet = .pro }, onDataManagement: { presentedSheet = .data }, onWidgetHelp: { presentedSheet = .widgetHelp }, onSafety: { presentedSheet = .safetyNotice })
+                            .toolbar {
+                                ToolbarItem(placement: .topBarTrailing) {
+                                    Button { presentedSheet = nil } label: {
+                                        Image(systemName: "xmark").frame(width: 44, height: 44)
+                                    }
+                                    .accessibilityLabel("닫기")
+                                    .accessibilityIdentifier("settings-close")
+                                }
+                            }
+                    }
+                case .widgetHelp: WidgetHelpView(palette: ThemePalette.palette(for: settings?.themeID ?? .quietIvory, colorScheme: colorScheme, contrast: colorSchemeContrast), onDismiss: { presentedSheet = .settings })
+                case .safetyNotice: SafetyNoticeView()
                 case .pro: ProPaywallView(model: ProPaywallViewModel(entitlement: entitlement, store: dependencies.entitlementStore))
                 case .data:
                     if let settings {
@@ -82,7 +97,7 @@ struct AppShellView: View {
             }
         }
         .fullScreenCover(item: $ritualPresentation, onDismiss: { Task { await loadSettings() } }) { presentation in
-            RitualView(model: presentation.model, palette: ThemePalette.palette(for: presentation.settings.themeID, colorScheme: colorScheme, contrast: colorSchemeContrast), haptics: SystemRitualHapticEngine(enabled: presentation.settings.hapticsEnabled), sound: SystemRitualSoundEngine(enabled: presentation.settings.soundEnabled), reducedMotion: presentation.settings.reducedMotionEnabled)
+            RitualView(model: presentation.model, palette: ThemePalette.palette(for: presentation.settings.themeID, colorScheme: colorScheme, contrast: colorSchemeContrast), haptics: SystemRitualHapticEngine(enabled: presentation.settings.hapticsEnabled), sound: SystemRitualSoundEngine(enabled: presentation.settings.soundEnabled), reducedMotion: presentation.settings.reducedMotionEnabled, onRecords: { selectedTab = 1 })
                 #if DEBUG && MAEUMJARO_QA_FIXTURES
                 .overlay(alignment: .topLeading) { fixtureIdentity }
                 #endif
@@ -114,36 +129,21 @@ struct AppShellView: View {
         let palette = ThemePalette.palette(for: settings.themeID, colorScheme: colorScheme, contrast: colorSchemeContrast)
         NavigationStack(path: Binding(get: { router.path }, set: { router.replacePath($0) })) {
             TabView(selection: $selectedTab) {
+                HomeView(palette: palette, onStart: { openRitual(source: .app) }, onOpenSettings: { presentedSheet = .settings })
+                    .tabItem { Image(systemName: "pencil").accessibilityLabel("홈") }.tag(0)
                 HistoryView(viewModel: HistoryViewModel(eventRepository: dependencies.events, entitlement: entitlement, onEventsDeleted: {
                     do { _ = try await dependencies.projection.projectAfterDeletion() }
                     catch { loadError = error }
                 }), palette: palette)
                     .id(refreshID)
-                    .safeAreaInset(edge: .top) {
-                        VStack(spacing: DesignTokens.spacing2) {
-                            Button("의식 시작") { openRitual(source: .app) }
-                                .buttonStyle(.borderedProminent)
-                                .tint(palette.accent.color)
-                                .foregroundStyle(palette.accentForeground.color)
-                                .frame(maxWidth: .infinity, minHeight: DesignTokens.minimumTouchTarget)
-                                .accessibilityIdentifier("ritual-start")
-                            if !settings.widgetHelpBannerDismissed {
-                                WidgetHelpBanner(palette: palette, onDismiss: dismissWidgetHelp, onOpen: { router.push(.widgetHelp) })
-                            }
-                        }
-                        .padding(.horizontal, DesignTokens.spacing4)
-                        .padding(.bottom, DesignTokens.spacing2)
-                    }
-                            .tabItem { Label("기록", systemImage: "calendar") }.tag(0)
-                SettingsView(model: SettingsViewModel(initialSettings: settings, settingsRepository: dependencies.settingsRepository, strengthStore: dependencies.strengthStore, onStrengthChanged: { try dependencies.projection.strengthChanged(to: $0) }), onPro: { presentedSheet = .pro }, onDataManagement: { presentedSheet = .data }, onWidgetHelp: { router.push(.widgetHelp) }, onSafety: { router.push(.safetyNotice) })
-                    .tabItem { Label("설정", systemImage: "gearshape") }.tag(1)
+                    .tabItem { Image(systemName: "clock.arrow.circlepath").accessibilityLabel("기록") }.tag(1)
             }
             .navigationDestination(for: AppRoute.self) { route in
                 switch route {
                 case .widgetHelp: WidgetHelpView(palette: palette)
                 case .safetyNotice: SafetyNoticeView()
                 case .ritual(let source):
-                    ProgressView("의식을 준비하고 있어요")
+                    ProgressView().accessibilityLabel("준비 중이에요")
                         .task { openRitual(source: source) }
                 }
             }
@@ -167,16 +167,6 @@ struct AppShellView: View {
             }
         }
         #endif
-    }
-
-    private func dismissWidgetHelp() {
-        guard var current = settings else { return }
-        current.widgetHelpBannerDismissed = true
-        settings = current
-        Task {
-            do { try await dependencies.settingsRepository.save(current) }
-            catch { loadError = error }
-        }
     }
 
     private func openRitual(source: EventSource) {
@@ -219,7 +209,7 @@ struct AppShellView: View {
 }
 
 private enum ShellSheet: String, Identifiable {
-    case pro, data
+    case settings, widgetHelp, safetyNotice, pro, data
     var id: String { rawValue }
 }
 

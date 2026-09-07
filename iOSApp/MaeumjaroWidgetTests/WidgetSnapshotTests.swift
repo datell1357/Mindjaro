@@ -9,6 +9,8 @@ final class WidgetSnapshotTests: XCTestCase {
         XCTAssertEqual(small.label, "마음자로 오늘 위젯")
         XCTAssertEqual(small.value, "강도 1, 오늘 3회")
         XCTAssertFalse(small.hint.isEmpty)
+        XCTAssertFalse(small.hint.contains("빼기"))
+        XCTAssertTrue(small.hint.contains("앱 설정"))
 
         let medium = WidgetAccessibilityContent.medium(strength: .five, summary: summary)
         XCTAssertEqual(medium.value, "현재 강도 5, 오늘 3회")

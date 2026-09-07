@@ -11,7 +11,7 @@ struct MaeumjaroWidget: Widget {
         }
         .configurationDisplayName(WidgetLocalizedStrings.brand)
         .description(WidgetLocalizedStrings.description)
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemSmall, .accessoryCircular, .systemMedium])
     }
 }
 
@@ -29,7 +29,8 @@ struct MaeumjaroWidgetEntryView: View {
         )
 
         Group {
-            if family == .systemMedium { MediumWidgetView(entry: entry, palette: palette) }
+            if family == .accessoryCircular { CircularWidgetView(entry: entry) }
+            else if family == .systemMedium { MediumWidgetView(entry: entry, palette: palette) }
             else { SmallWidgetView(entry: entry, palette: palette) }
         }
         .redacted(reason: entry.isPlaceholder ? .placeholder : [])

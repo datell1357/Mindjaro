@@ -7,6 +7,9 @@ import MaeumjaroShared
 
 @MainActor
 final class WidgetAppearanceRenderTests: XCTestCase {
+    func testPenAssetExistsInWidgetRenderBundle() throws {
+        XCTAssertNotNil(UIImage(named: "PenLocked", in: WidgetLocalizedStrings.bundle, compatibleWith: nil))
+    }
     func testWidgetAppearanceRendersExactMatrix() throws {
         let summaries: [(name: String, snapshot: TodaySummarySnapshot)] = [
             ("zero", summary(completionCount: 0, intensitySum: 0)),
@@ -27,7 +30,8 @@ final class WidgetAppearanceRenderTests: XCTestCase {
         ]
         let families: [(name: String, value: WidgetFamily, size: CGSize)] = [
             ("small", .systemSmall, CGSize(width: 158, height: 158)),
-            ("medium", .systemMedium, CGSize(width: 338, height: 158))
+            ("medium", .systemMedium, CGSize(width: 338, height: 158)),
+            ("circular", .accessoryCircular, CGSize(width: 64, height: 64))
         ]
 
         for family in families {
@@ -117,6 +121,8 @@ final class WidgetAppearanceRenderTests: XCTestCase {
         colorScheme: ColorScheme
     ) throws -> UIImage {
         let component: AnyView = switch family {
+        case .accessoryCircular:
+            AnyView(CircularWidgetView(entry: entry))
         case .systemMedium:
             AnyView(MediumWidgetView(entry: entry, palette: palette))
         default:

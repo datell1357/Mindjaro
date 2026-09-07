@@ -69,6 +69,7 @@
 		847DE64A87E2230F1D0C189A /* ThemeAppearanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7131B0F138DE9DD4F666B2B3 /* ThemeAppearanceTests.swift */; };
 		85AE7D5AA5E940AC66DA9BC8 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A924A9270C89198351339CE8 /* AppRouter.swift */; };
 		87836EEDBFF65336FBB2D1C5 /* DataManagementViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A795876D9C1D443D606C9F7B /* DataManagementViewModelTests.swift */; };
+		8E0457593B31F1F24D1C1EA0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A5DEA9815D9ACB1A44F04F31 /* Assets.xcassets */; };
 		8EEE29217A571F145C143CAA /* AppWidgetTimelineReloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CFE276C24B3B419A27EA838 /* AppWidgetTimelineReloader.swift */; };
 		9173A959CD8BAFDF11B9E3BA /* QAColdWidgetHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2E54BF0AECFD7011C64DAB /* QAColdWidgetHandoff.swift */; };
 		95017002DA4F2E1877788B6C /* WidgetSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C7CACF34F53F706CCA4349 /* WidgetSnapshotTests.swift */; };
@@ -90,6 +91,7 @@
 		B0CCEFD868BBBD66F1477350 /* MaeumjaroDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 318468919330FCA56EA745B6 /* MaeumjaroDomain */; };
 		B127886E83E47C33FE2525C8 /* WidgetLocalizedStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481D97CD72D1BC03D3DCF47A /* WidgetLocalizedStrings.swift */; };
 		B1850A67D75F48425A7BEBD0 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 43847E675DEB741802719CCA /* PrivacyInfo.xcprivacy */; };
+		B28DF5DD42440B93A48DB426 /* QuietDesignUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7246F1EDA20362BAACA6253B /* QuietDesignUITests.swift */; };
 		B2BB846F2B3DEB7E8ED11053 /* RitualPhraseProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82D698FBC5E4BE1DFB6B51BE /* RitualPhraseProviderTests.swift */; };
 		B2D4427F78FFECB4572154FA /* PenAssetContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0D2547B492A3F087E411F3 /* PenAssetContract.swift */; };
 		B40644C76BEA7E1EBD575E99 /* RitualViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE85E3FE9C6F52322821D80 /* RitualViewModel.swift */; };
@@ -239,6 +241,7 @@
 		6F23C38777DA4D5F6EF8575A /* HistoryExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryExporter.swift; sourceTree = "<group>"; };
 		711629D569F7432E4863A901 /* Tests.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Tests.xcconfig; sourceTree = "<group>"; };
 		7131B0F138DE9DD4F666B2B3 /* ThemeAppearanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeAppearanceTests.swift; sourceTree = "<group>"; };
+		7246F1EDA20362BAACA6253B /* QuietDesignUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuietDesignUITests.swift; sourceTree = "<group>"; };
 		7293816611D55974AEAAE6D8 /* WidgetCompletionUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetCompletionUITests.swift; sourceTree = "<group>"; };
 		72BBE906D45F32C3FDA1CFDE /* Maeumjaro.storekit */ = {isa = PBXFileReference; path = Maeumjaro.storekit; sourceTree = "<group>"; };
 		73C224BAADC34DC4B45A9D5E /* Widget-Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Widget-Debug.xcconfig"; sourceTree = "<group>"; };
@@ -613,6 +616,7 @@
 				415CD8580477B79ADCDCC44C /* HistoryCommerceUITests.swift */,
 				B64BA219898444E64446C7B3 /* LaunchPerformanceTests.swift */,
 				342E23EBED45AF0CC8DD82E5 /* MaeumjaroUIScaffoldTests.swift */,
+				7246F1EDA20362BAACA6253B /* QuietDesignUITests.swift */,
 				5A3194F1D417FEA1910D1E3B /* SettingsAccessibilityTests.swift */,
 				7293816611D55974AEAAE6D8 /* WidgetCompletionUITests.swift */,
 			);
@@ -863,6 +867,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E0457593B31F1F24D1C1EA0 /* Assets.xcassets in Resources */,
 				05F2EA4FD4C66D0E3C3F8969 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -899,6 +904,7 @@
 				FF2B5B4A5F4F4D38AE9AE8B5 /* HistoryCommerceUITests.swift in Sources */,
 				76D25069F2553D722CF9B806 /* LaunchPerformanceTests.swift in Sources */,
 				E10C9914A4F4F2481B670CAC /* MaeumjaroUIScaffoldTests.swift in Sources */,
+				B28DF5DD42440B93A48DB426 /* QuietDesignUITests.swift in Sources */,
 				505DEA866170247B928D6768 /* SettingsAccessibilityTests.swift in Sources */,
 				A1293A1C5299840166B27C00 /* WidgetCompletionUITests.swift in Sources */,
 			);

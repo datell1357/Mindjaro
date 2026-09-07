@@ -61,8 +61,9 @@ final class SettingsAccessibilityTests: XCTestCase {
         add(fixture)
 
         let app = launch(fixtureID: fixtureID)
-        guard require(app.tabBars.buttons["설정"], in: app, "settings-tab") else { return }
-        app.tabBars.buttons["설정"].tap()
+        app.tabBars.buttons["홈"].tap()
+        guard require(app.buttons["settings-open"], in: app, "settings-open") else { return }
+        app.buttons["settings-open"].tap()
 
         let pro = app.buttons["Pro 기능 보기"]
         let dataManagement = app.buttons["데이터 관리"]
@@ -82,8 +83,9 @@ final class SettingsAccessibilityTests: XCTestCase {
         add(fixture)
 
         let app = launch(fixtureID: fixtureID)
-        guard require(app.tabBars.buttons["설정"], in: app, "settings-tab") else { return }
-        app.tabBars.buttons["설정"].tap()
+        app.tabBars.buttons["홈"].tap()
+        guard require(app.buttons["settings-open"], in: app, "settings-open") else { return }
+        app.buttons["settings-open"].tap()
         let pro = app.buttons["Pro 기능 보기"]
         scrollIntoView(pro, in: app)
         XCTAssertTrue(pro.isHittable, "Pro CTA must remain reachable at maximum Dynamic Type")
@@ -115,8 +117,9 @@ final class SettingsAccessibilityTests: XCTestCase {
         add(fixture)
 
         let app = launch(fixtureID: fixtureID, maximumType: maximumType)
-        guard require(app.tabBars.buttons["설정"], in: app, "settings-tab") else { return }
-        app.tabBars.buttons["설정"].tap()
+        app.tabBars.buttons["홈"].tap()
+        guard require(app.buttons["settings-open"], in: app, "settings-open") else { return }
+        app.buttons["settings-open"].tap()
         let dataManagement = app.buttons["데이터 관리"]
         scrollIntoView(dataManagement, in: app)
         XCTAssertTrue(dataManagement.isHittable, "Data Management CTA must remain reachable at maximum Dynamic Type")

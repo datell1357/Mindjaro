@@ -7,7 +7,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "강도 1에서 5를 직접 선택하거나 시작을 눌러 의식을 엽니다."
+            "value" : "위젯을 누르면 펜 화면이 열립니다. 강도는 앱 설정에서 바꿀 수 있습니다."
           }
         }
       }
@@ -17,7 +17,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "마음자로 강도 선택 위젯"
+            "value" : "마음자로 바로 열기 위젯"
           }
         }
       }
@@ -37,7 +37,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "빼기와 더하기로 강도를 바꾸고 시작을 눌러 의식을 엽니다."
+            "value" : "위젯을 누르면 펜 화면이 열립니다. 강도는 앱 설정에서 바꿀 수 있습니다."
           }
         }
       }
@@ -77,7 +77,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "오늘의 마음 정리와 의식 시작"
+            "value" : "잠깐의 여유를 위한 펜"
           }
         }
       }

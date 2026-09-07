@@ -6,7 +6,7 @@ import XCTest
 @MainActor
 final class WidgetCompletionUITests: XCTestCase {
     private let appBundleID = "com.yeoreum.maeumjaro"
-    private let widgetLabelCandidates = ["마음자로 오늘 위젯", "마음자로 강도 선택 위젯"]
+    private let widgetLabelCandidates = ["마음자로 오늘 위젯", "마음자로 바로 열기 위젯", "마음자로 강도 선택 위젯"]
 
     private func launchFixture(fixtureID: UUID = UUID(), armCold: Bool = false) -> XCUIApplication {
         let app = XCUIApplication(bundleIdentifier: appBundleID)
@@ -79,7 +79,7 @@ final class WidgetCompletionUITests: XCTestCase {
         left.press(forDuration: 0.05, thenDragTo: right,
                    withVelocity: XCUIGestureVelocity.default, thenHoldForDuration: 0)
         canvas.press(forDuration: 3.4)
-        return waitFor(app.staticTexts["의식 완료"], "ritual completion", timeout: 10)
+        return waitFor(app.buttons["기록 보기"], "ritual completion", timeout: 10)
     }
 
     private func tapWidgetStart(_ widget: XCUIElement) {
@@ -268,8 +268,9 @@ final class WidgetCompletionUITests: XCTestCase {
         }
 
         relaunched.activate()
-        guard waitFor(relaunched.tabBars.buttons["설정"], "settings tab") else { return }
-        relaunched.tabBars.buttons["설정"].tap()
+        relaunched.tabBars.buttons["홈"].tap()
+        guard waitFor(relaunched.buttons["settings-open"], "settings open") else { return }
+        relaunched.buttons["settings-open"].tap()
         let management = relaunched.buttons["데이터 관리"]
         for _ in 0..<8 where !management.isHittable { relaunched.swipeUp() }
         guard waitFor(management, "data management") else { return }
@@ -375,7 +376,7 @@ final class WidgetCompletionUITests: XCTestCase {
         paused.lifetime = .keepAlways
         add(paused)
         canvas.press(forDuration: 3.4)
-        guard waitFor(armed.staticTexts["의식 완료"], "cold fixture completion", timeout: 10) else { return }
+        guard waitFor(armed.buttons["기록 보기"], "cold fixture completion", timeout: 10) else { return }
         armed.buttons["기록 보기"].tap()
         guard waitFor(today, "cold fixture completed history") else { return }
         XCTAssertEqual(today.value as? String, "1회")

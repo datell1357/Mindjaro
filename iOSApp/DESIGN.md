@@ -12,7 +12,7 @@ The semantic order is `background / surface / ink / accent / highlight`.
 
 | Theme | Light tokens | Dark/high-contrast behavior |
 | --- | --- | --- |
-| `quietIvory` | `#F5F1E8 / #FFFCF7 / #1F2328 / #4F7D75 / #E9856B` | Deep warm neutral dark variant; black/white high-contrast variants |
+| `quietIvory` | `#FBF7F0 / #FFFCF7 / #1F2328 / #4F7D75 / #E9856B` | Deep warm neutral dark variant; black/white high-contrast variants |
 | `midnightInk` | `#0E1418 / #182127 / #F2F4EF / #73B7A9 / #F09A7C` | Deep ink dark variant; high-contrast black/white variants |
 | `forestMist` | `#EEF3ED / #FAFCF8 / #1D2B24 / #3E7460 / #C77C67` | Deep green dark variant; high-contrast black/white variants |
 

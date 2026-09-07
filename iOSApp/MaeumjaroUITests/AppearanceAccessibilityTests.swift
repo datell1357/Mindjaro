@@ -99,11 +99,13 @@ final class AppearanceAccessibilityTests: XCTestCase {
             captureSurface("\(appearanceName)-history", from: app)
             try audit(app, name: "\(appearanceName)-history")
 
-            app.tabBars.buttons["설정"].tap()
+            app.tabBars.buttons["홈"].tap()
+            app.buttons["settings-open"].tap()
             guard require(app.buttons["settings-intensity-1"], in: app, name: "\(appearanceName)-settings-content") else { return }
             captureSurface("\(appearanceName)-settings", from: app)
             try audit(app, name: "\(appearanceName)-settings")
 
+            app.buttons["settings-close"].tap()
             app.tabBars.buttons["기록"].tap()
             let baselineToday = app.descendants(matching: .any).matching(
                 NSPredicate(format: "label == %@", "오늘 기록")
@@ -111,7 +113,8 @@ final class AppearanceAccessibilityTests: XCTestCase {
             guard require(baselineToday, in: app, name: "\(appearanceName)-today-record") else { return }
             let baselineValue = baselineToday.value as? String
 
-            let start = app.buttons["의식 시작"]
+            app.tabBars.buttons["홈"].tap()
+            let start = app.buttons["ritual-start"]
             guard require(start, in: app, name: "\(appearanceName)-ritual-start") else { return }
             start.tap()
             let canvas = app.otherElements["ritual-canvas"]

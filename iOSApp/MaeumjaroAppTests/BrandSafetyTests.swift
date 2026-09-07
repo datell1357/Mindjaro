@@ -6,7 +6,7 @@ import XCTest
 
 final class BrandSafetyTests: XCTestCase {
     func testThemeTokensKeepApprovedValuesAndAccessibleVariants() {
-        XCTAssertEqual(ThemePalette.quietIvory.background.hex, "#F5F1E8")
+        XCTAssertEqual(ThemePalette.quietIvory.background.hex, "#FBF7F0")
         XCTAssertEqual(ThemePalette.quietIvory.surface.hex, "#FFFCF7")
         XCTAssertEqual(ThemePalette.quietIvory.ink.hex, "#1F2328")
         XCTAssertEqual(ThemePalette.quietIvory.accent.hex, "#4F7D75")
@@ -61,7 +61,7 @@ final class BrandSafetyTests: XCTestCase {
     func testIntensityControlStyleDelegatesTimingToDomainProfile() {
         let profile = IntensityControlStyle.profile(for: .three)
 
-        XCTAssertEqual(profile.initialFill, 0.6)
+        XCTAssertEqual(profile.initialFill, 1)
         XCTAssertEqual(profile.durationMilliseconds, 1800)
         XCTAssertEqual(profile.progressPulseCount, 3)
     }

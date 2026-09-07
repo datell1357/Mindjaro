@@ -61,7 +61,7 @@ public struct ThemePalette: Hashable, Sendable {
                 return make(
                     themeID: themeID,
                     variant: variant,
-                    background: "#F5F1E8",
+                    background: "#FBF7F0",
                     surface: "#FFFCF7",
                     ink: "#1F2328",
                     accent: "#4F7D75",

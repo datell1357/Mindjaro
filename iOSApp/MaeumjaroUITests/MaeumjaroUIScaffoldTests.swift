@@ -61,7 +61,7 @@ final class MaeumjaroRealUITests: XCTestCase {
     private func openRitual(_ app: XCUIApplication) -> XCUIElement? {
         // In the real TabView tree SwiftUI exposes the button's semantic label;
         // the parent tab carries history-tab and does not retain ritual-start.
-        let start = app.buttons["의식 시작"]
+        let start = app.buttons["ritual-start"]
         guard waitFor(start) else { return nil }
         start.tap()
         let canvas = app.otherElements["ritual-canvas"]
@@ -116,7 +116,7 @@ final class MaeumjaroRealUITests: XCTestCase {
         let app = launch(fixture: "empty")
         guard completeOnboarding(app) else { return }
         XCTAssertTrue(app.tabBars.buttons["기록"].exists)
-        XCTAssertTrue(app.tabBars.buttons["설정"].exists)
+        XCTAssertTrue(app.buttons["settings-open"].exists)
         XCTAssertFalse(app.alerts.firstMatch.exists, "Onboarding must not request a permission")
     }
 
@@ -124,14 +124,22 @@ final class MaeumjaroRealUITests: XCTestCase {
         let app = launch()
         guard completeOnboarding(app), let canvas = openRitual(app) else { return }
         unlock(canvas)
-        let progress = app.staticTexts["ritual-progress"]
+        let progress = app.descendants(matching: .any)["ritual-progress"]
         waitFor(progress)
         canvas.press(forDuration: 0.45)
-        XCTAssertTrue(app.staticTexts["일시정지"].waitForExistence(timeout: 2) || app.staticTexts["다시 눌러 이어서 진행합니다."].exists)
+        let pausedValue = progress.value as? String
+        XCTAssertNotEqual(pausedValue, "진행률 0퍼센트", "A partial hold must advance the ritual")
+        let remainsPaused = NSPredicate { object, _ in
+            guard let element = object as? XCUIElement else { return false }
+            return (element.value as? String) == pausedValue
+        }
+        expectation(for: remainsPaused, evaluatedWith: progress)
+        waitForExpectations(timeout: 2)
         canvas.press(forDuration: 2.4)
-        XCTAssertTrue(app.staticTexts["의식 완료"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.buttons["기록 보기"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.buttons["기록 보기"].exists)
         app.buttons["기록 보기"].tap()
+        app.tabBars.buttons["기록"].tap()
         let count = recordedCount(app)
         XCTAssertEqual(count.value as? String, "1회", "Today summary must report one completed event")
         XCTAssertFalse(app.staticTexts["2회"].exists, "One session must emit one completion event")
@@ -152,7 +160,7 @@ final class MaeumjaroRealUITests: XCTestCase {
         guard completeOnboarding(app), let canvas = openRitual(app) else { return }
         unlock(canvas)
 
-        let progress = app.staticTexts["ritual-progress"]
+        let progress = app.descendants(matching: .any)["ritual-progress"]
         guard waitFor(progress) else { return }
         canvas.press(forDuration: 0.45)
         let partialProgress = NSPredicate { object, _ in
@@ -168,8 +176,7 @@ final class MaeumjaroRealUITests: XCTestCase {
         }
         XCTAssertGreaterThan(pausedValue, 0)
         XCTAssertLessThan(pausedValue, 100)
-        XCTAssertTrue(app.staticTexts["일시정지"].waitForExistence(timeout: 3)
-                      || app.staticTexts["다시 눌러 이어서 진행합니다."].exists)
+        XCTAssertGreaterThan(pausedValue, 0, "A paused ritual must retain partial progress")
 
         let beforeBackground = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         beforeBackground.name = "paused-lifecycle-before-background"
@@ -191,7 +198,7 @@ final class MaeumjaroRealUITests: XCTestCase {
         }
         XCTAssertEqual(reactivatedValue, pausedValue, "Backgrounding must preserve the paused progress")
         XCTAssertLessThan(reactivatedValue, 100, "Paused ritual must not complete during backgrounding")
-        XCTAssertFalse(app.staticTexts["의식 완료"].exists)
+        XCTAssertFalse(app.buttons["기록 보기"].exists)
 
         let afterBackground = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         afterBackground.name = "paused-lifecycle-after-reactivation"
@@ -209,7 +216,7 @@ final class MaeumjaroRealUITests: XCTestCase {
         XCTAssertEqual(recordedCount(app).value as? String, "0회")
 
         guard let reopenedCanvas = openRitual(app) else { return }
-        let reopenedProgress = app.staticTexts["ritual-progress"]
+        let reopenedProgress = app.descendants(matching: .any)["ritual-progress"]
         guard waitFor(reopenedProgress) else { return }
         XCTAssertEqual(progressPercent(reopenedProgress), 0, "Closing a paused ritual must reset the next ritual")
         XCTAssertEqual(reopenedCanvas.value as? String, "진행률 0퍼센트")
@@ -247,8 +254,9 @@ final class MaeumjaroRealUITests: XCTestCase {
             XCTAssertEqual(canvas.label, "마음 정리 의식, 강도 3", "URL cannot override shared strength")
             unlock(canvas)
             canvas.press(forDuration: 2.4)
-            guard waitFor(app.staticTexts["의식 완료"]) else { return }
+            guard waitFor(app.buttons["기록 보기"]) else { return }
             app.buttons["기록 보기"].tap()
+            app.tabBars.buttons["기록"].tap()
             XCTAssertEqual(recordedCount(app).value as? String, count)
             let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
             screenshot.name = "deep-link-\(source)-completion"
@@ -275,14 +283,14 @@ final class MaeumjaroRealUITests: XCTestCase {
         guard completeOnboarding(app), let canvas = openRitual(app) else { return }
         unlock(canvas)
         canvas.press(forDuration: 2.4)
-        guard waitFor(app.staticTexts["의식 완료"]) else { return }
+        guard waitFor(app.buttons["기록 보기"]) else { return }
         let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         screenshot.name = "completed-ritual-before-accessibility-audit"
         screenshot.lifetime = .keepAlways
         add(screenshot)
         try app.performAccessibilityAudit(for: [.dynamicType, .textClipped])
         let records = app.buttons["기록 보기"]
-        let completionScroll = app.scrollViews.containing(.staticText, identifier: "의식 완료").firstMatch
+        let completionScroll = app.scrollViews.firstMatch
         guard waitFor(completionScroll) else { return }
         completionScroll.swipeUp()
         XCTAssertTrue(records.isHittable)
@@ -294,6 +302,7 @@ final class MaeumjaroRealUITests: XCTestCase {
         visible.lifetime = .keepAlways
         add(visible)
         records.tap()
+        app.tabBars.buttons["기록"].tap()
         XCTAssertEqual(recordedCount(app).value as? String, "1회")
     }
 
@@ -314,7 +323,7 @@ final class MaeumjaroRealUITests: XCTestCase {
             add(tree)
         }
         XCTAssertTrue(app.buttons["ritual-close"].isHittable)
-        let progress = app.staticTexts["ritual-progress"]
+        let progress = app.descendants(matching: .any)["ritual-progress"]
         for _ in 0..<8 where !progress.isHittable {
             // Scroll within the visible text region, outside the pen's gesture region.
             let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.55))
@@ -336,15 +345,18 @@ final class MaeumjaroRealUITests: XCTestCase {
                         withVelocity: XCUIGestureVelocity.default, thenHoldForDuration: 0)
         }
         func assertHint(_ expected: String) {
-            XCTAssertTrue(app.staticTexts[expected].waitForExistence(timeout: 3))
-            XCTAssertEqual(canvas.value as? String, "진행률 0퍼센트")
+            let expectedValue = "진행률 0퍼센트 · \(expected)"
+            let state = NSPredicate(format: "value == %@", expectedValue)
+            expectation(for: state, evaluatedWith: canvas)
+            waitForExpectations(timeout: 3)
+            XCTAssertEqual(canvas.value as? String, expectedValue)
             let attachment = XCTAttachment(string: app.debugDescription)
             attachment.name = "gesture-boundary-\(expected)"
             attachment.lifetime = .keepAlways
             add(attachment)
         }
-        let locked = "좌우로 밀어 잠금을 풀어 주세요."
-        let ready = "잠시 누르고 있으면 진행을 시작합니다."
+        let locked = "잠금"
+        let ready = "준비됨"
         assertHint(locked)
         drag(dx: 44, dy: 0)
         assertHint(locked)
@@ -363,13 +375,15 @@ final class MaeumjaroRealUITests: XCTestCase {
         assertHint(ready)
         app.buttons["ritual-close"].tap()
         guard waitFor(app.tabBars.buttons["기록"]) else { return }
+        app.tabBars.buttons["기록"].tap()
         XCTAssertEqual(recordedCount(app).value as? String, "0회")
     }
 
     func testSettingsTogglePersistsAfterRelaunch() {
         let app = launch(fixture: "empty")
         guard completeOnboarding(app) else { return }
-        app.tabBars.buttons["설정"].tap()
+        app.tabBars.buttons["홈"].tap()
+        app.buttons["settings-open"].tap()
         let sound = app.switches["소리"]
         waitFor(sound)
         let before = sound.value as? String
@@ -390,7 +404,8 @@ final class MaeumjaroRealUITests: XCTestCase {
         XCTAssertNotEqual(before, after, "The settings control must actually change state")
         app.terminate()
         app.launch()
-        app.tabBars.buttons["설정"].tap()
+        app.tabBars.buttons["홈"].tap()
+        app.buttons["settings-open"].tap()
         let relaunchedSound = app.switches["소리"]
         waitFor(relaunchedSound)
         XCTAssertEqual(relaunchedSound.value as? String, after)
@@ -433,16 +448,18 @@ final class MaeumjaroRealUITests: XCTestCase {
         unlock(canvas)
         canvas.press(forDuration: 2.4)
 
-        XCTAssertTrue(app.staticTexts["의식 완료"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.buttons["기록 보기"].waitForExistence(timeout: 8))
         app.buttons["기록 보기"].tap()
+        app.tabBars.buttons["기록"].tap()
         XCTAssertEqual(recordedCount(app).value as? String, "1회", "Offline StoreKit must not block the local core ritual")
     }
 
     func testProDataManagementShareCancellationDeletePathsAndRelaunch() {
         let fixtureID = UUID()
         let app = launch(fixture: "pro-boundary", fixtureID: fixtureID)
-        waitFor(app.tabBars.buttons["설정"])
-        app.tabBars.buttons["설정"].tap()
+        waitFor(app.buttons["settings-open"])
+        app.tabBars.buttons["홈"].tap()
+        app.buttons["settings-open"].tap()
         guard openDataManagement(app) else { return }
 
         let forest = app.buttons["Forest Mist"]
@@ -506,7 +523,8 @@ final class MaeumjaroRealUITests: XCTestCase {
             NSPredicate(format: "label MATCHES %@", "[0-9]{4}-[0-9]{2}-[0-9]{2}")
         )
         XCTAssertGreaterThan(seededDateRows.count, 0, "Delete cancellation must preserve isolated fixture records")
-        app.tabBars.buttons["설정"].tap()
+        app.tabBars.buttons["홈"].tap()
+        app.buttons["settings-open"].tap()
         guard openDataManagement(app) else { return }
         let deleteAllAgain = app.buttons["모든 기록 삭제"]
         guard scrollIntoView(deleteAllAgain, in: app) else { return }
@@ -521,9 +539,10 @@ final class MaeumjaroRealUITests: XCTestCase {
 
         app.terminate()
         app.launch()
-        waitFor(app.tabBars.buttons["설정"])
+        waitFor(app.buttons["settings-open"])
         XCTAssertFalse(app.buttons["완료"].exists, "Relaunch must remain past onboarding")
-        app.tabBars.buttons["설정"].tap()
+        app.tabBars.buttons["홈"].tap()
+        app.buttons["settings-open"].tap()
         guard openDataManagement(app) else { return }
         let forestAfterRelaunch = app.buttons["Forest Mist"]
         guard scrollIntoView(forestAfterRelaunch, in: app) else { return }

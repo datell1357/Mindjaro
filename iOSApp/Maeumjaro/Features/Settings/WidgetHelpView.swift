@@ -12,9 +12,10 @@ struct WidgetHelpView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.spacing4) {
             Text("위젯으로 바로 시작하기").font(DesignTokens.font(for: .screenTitle)).foregroundStyle(palette.ink.color).accessibilityAddTraits(.isHeader)
-            Text("홈 화면에 마음자로 위젯을 추가하면 앱을 열지 않고도 오늘의 의식을 시작할 수 있어요.").font(DesignTokens.font(for: .body)).foregroundStyle(palette.ink.color)
-            Label("홈 화면을 길게 누르고 위젯을 추가하세요.", systemImage: "plus.app").foregroundStyle(palette.ink.color)
-            Label("위젯에서 의식 시작을 눌러 기록을 남겨요.", systemImage: "hand.tap").foregroundStyle(palette.ink.color)
+            Text("홈 화면에 마음자로 위젯을 추가하면 펜 화면으로 바로 들어갈 수 있어요.").font(DesignTokens.font(for: .body)).foregroundStyle(palette.ink.color)
+            Label("홈 화면을 길게 누르고 작은 마음자로 위젯을 추가하세요.", systemImage: "plus.app").foregroundStyle(palette.ink.color)
+            Label("위젯 어디든 누르면 펜 화면이 열려요. 강도는 앱 설정에서 바꿀 수 있어요.", systemImage: "hand.tap").foregroundStyle(palette.ink.color)
+            Label("잠금화면 사용자화에서 원형 마음자로 위젯도 추가할 수 있어요.", systemImage: "lock.circle").foregroundStyle(palette.ink.color)
             if let onDismiss { Button("나중에", action: onDismiss).frame(minHeight: DesignTokens.minimumTouchTarget).tint(palette.accent.color) }
         }
         .padding(DesignTokens.spacing6)
