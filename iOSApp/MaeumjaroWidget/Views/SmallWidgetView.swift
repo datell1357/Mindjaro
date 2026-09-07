@@ -1,10 +1,16 @@
 import SwiftUI
+import UIKit
 import MaeumjaroDomain
 import WidgetKit
 
 struct SmallWidgetView: View {
     let entry: MaeumjaroTimelineEntry
     let palette: ThemePalette
+
+    // Archive only the pixels needed for a 64×96pt image at 3× scale.
+    // A resizable full-resolution asset still exceeds WidgetKit's archive budget.
+    static let penThumbnail = UIImage(named: "PenLocked", in: WidgetLocalizedStrings.bundle, compatibleWith: nil)?
+        .preparingThumbnail(of: CGSize(width: 192, height: 288))
 
     private var injectionURL: URL { URL(string: "maeumjaro://inject?source=widget")! }
     private var strengthColor: Color {
@@ -19,10 +25,14 @@ struct SmallWidgetView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            Image("PenLocked", bundle: WidgetLocalizedStrings.bundle)
+            if let thumbnail = Self.penThumbnail {
+                Image(uiImage: thumbnail)
                     .resizable()
                     .frame(width: 64, height: 96)
                     .frame(width: 24).clipped()
+            } else {
+                Image(systemName: "pencil.tip").frame(width: 24, height: 96)
+            }
             Circle().fill(strengthColor)
                 .overlay(Circle().stroke(palette.border.color, lineWidth: 1))
                 .overlay {

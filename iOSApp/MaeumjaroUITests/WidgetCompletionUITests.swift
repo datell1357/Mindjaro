@@ -305,6 +305,82 @@ final class WidgetCompletionUITests: XCTestCase {
         add(deleted)
     }
 
+    /// Completes one ritual through an already-installed small widget while
+    /// keeping the fixture app warm, then verifies the persisted widget summary.
+    func testWarmSmallWidgetFixtureCompletesOnceAndUpdatesTodaySummary() {
+        continueAfterFailure = false
+        let fixtureID = UUID()
+        addFixtureAttachment(fixtureID, name: "warm-small-widget-fixture-id")
+
+        let app = launchFixture(fixtureID: fixtureID)
+        completeOnboardingAtStrengthFive(app)
+        XCUIDevice.shared.press(.home)
+
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        springboard.activate()
+        guard let widget = findInstalledWidget(in: springboard, medium: false) else {
+            attachTree("warm-small-widget-missing", from: springboard)
+            XCTFail("No existing Maeumjaro small widget was found on the Home Screen")
+            return
+        }
+        let before = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        before.name = "warm-small-widget-before-start"
+        before.lifetime = .keepAlways
+        add(before)
+        attachTree("warm-small-widget-before-start-tree", from: widget)
+
+        XCTAssertEqual(app.state, .runningBackground)
+        widget.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10))
+        guard waitFor(app.otherElements["ritual-canvas"], "warm widget ritual") else { return }
+
+        let canvas = app.otherElements["ritual-canvas"]
+        let start = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        let end = start.withOffset(CGVector(dx: 90, dy: 0))
+        start.press(forDuration: 0.05, thenDragTo: end,
+                    withVelocity: XCUIGestureVelocity.default, thenHoldForDuration: 0)
+        let ready = NSPredicate(format: "value CONTAINS %@", "준비됨")
+        let readyExpectation = expectation(for: ready, evaluatedWith: canvas)
+        wait(for: [readyExpectation], timeout: 3)
+        XCTAssertTrue((canvas.value as? String)?.contains("준비됨") == true,
+                      "The widget-opened ritual must unlock before holding")
+        canvas.press(forDuration: 3.6)
+        guard waitFor(app.buttons["기록 보기"], "warm widget completion", timeout: 10) else { return }
+        app.buttons["기록 보기"].tap()
+
+        let today = app.descendants(matching: .any).matching(
+            NSPredicate(format: "label == %@", "오늘 기록")
+        ).firstMatch
+        guard waitFor(today, "warm widget today summary") else { return }
+        XCTAssertEqual(today.value as? String, "1회")
+        let records = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        records.name = "warm-small-widget-records-today-1"
+        records.lifetime = .keepAlways
+        add(records)
+
+        XCUIDevice.shared.press(.home)
+        springboard.activate()
+        guard let updatedWidget = findInstalledWidget(in: springboard, medium: false) else {
+            attachTree("warm-small-widget-after-completion-missing", from: springboard)
+            XCTFail("Maeumjaro small widget disappeared after completion")
+            return
+        }
+        let updated = updatedWidget.descendants(matching: .any).matching(
+            NSPredicate(format: "value CONTAINS %@", "오늘 1회")
+        ).firstMatch
+        guard waitFor(updated, "warm widget today summary after refresh", timeout: 15) else {
+            attachTree("warm-small-widget-summary-stale", from: updatedWidget)
+            return
+        }
+        XCTAssertTrue((updated.value as? String)?.contains("오늘 1회") == true,
+                      "Small widget must report exactly one completion")
+        let after = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        after.name = "warm-small-widget-after-completion-today-1"
+        after.lifetime = .keepAlways
+        add(after)
+        attachTree("warm-small-widget-after-completion-tree", from: updatedWidget)
+    }
+
     /// Re-arms one already-onboarded fixture for a true widget cold launch.
     /// The fixture identity is checked before any ritual gesture, and no
     /// Home Screen widget or fixture record is removed by this test.

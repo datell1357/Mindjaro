@@ -10,6 +10,15 @@ final class WidgetAppearanceRenderTests: XCTestCase {
     func testPenAssetExistsInWidgetRenderBundle() throws {
         XCTAssertNotNil(UIImage(named: "PenLocked", in: WidgetLocalizedStrings.bundle, compatibleWith: nil))
     }
+    func testPenThumbnailUsesBoundedArchivePixels() throws {
+        let thumbnail = try XCTUnwrap(SmallWidgetView.penThumbnail?.cgImage)
+        XCTAssertEqual(thumbnail.width, 192)
+        XCTAssertEqual(thumbnail.height, 288)
+        XCTAssertLessThanOrEqual(thumbnail.width * thumbnail.height, 192 * 288)
+        let original = try XCTUnwrap(UIImage(named: "PenLocked", in: WidgetLocalizedStrings.bundle, compatibleWith: nil)?.cgImage)
+        XCTAssertEqual(original.width, 1024)
+        XCTAssertEqual(original.height, 1536)
+    }
     func testWidgetAppearanceRendersExactMatrix() throws {
         let summaries: [(name: String, snapshot: TodaySummarySnapshot)] = [
             ("zero", summary(completionCount: 0, intensitySum: 0)),
