@@ -16,8 +16,14 @@ struct OnboardingView: View {
             ProgressView(value: Double(model.step.number), total: 6)
                 .tint(resolvedPalette.accent.color)
                 .accessibilityLabel(String(localized: "온보딩 \(model.step.number)단계"))
-            Group { content }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            GeometryReader { proxy in
+                ScrollView {
+                    content
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(minHeight: proxy.size.height, alignment: .center)
+                }
+                .scrollBounceBehavior(.basedOnSize)
+            }
             if let error = model.errorMessage { Text(error).font(DesignTokens.font(for: .secondary)).foregroundStyle(.red) }
             if model.step == .widgetHelp {
                 Button("완료") { Task { if let settings = await model.advance() { onComplete(settings) } } }

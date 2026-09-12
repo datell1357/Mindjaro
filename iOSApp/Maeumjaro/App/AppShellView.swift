@@ -71,7 +71,7 @@ struct AppShellView: View {
                 switch sheet {
                 case .settings:
                     if let settings {
-                        SettingsView(model: SettingsViewModel(initialSettings: settings, settingsRepository: dependencies.settingsRepository, strengthStore: dependencies.strengthStore, onStrengthChanged: { try dependencies.projection.strengthChanged(to: $0) }), onPro: { presentedSheet = .pro }, onDataManagement: { presentedSheet = .data }, onWidgetHelp: { presentedSheet = .widgetHelp }, onSafety: { presentedSheet = .safetyNotice })
+                        SettingsView(model: SettingsViewModel(initialSettings: settings, settingsRepository: dependencies.settingsRepository, strengthStore: dependencies.strengthStore, onStrengthChanged: { try dependencies.projection.strengthChanged(to: $0) }), historyModel: HistoryViewModel(eventRepository: dependencies.events), onPro: { presentedSheet = .pro }, onDataManagement: { presentedSheet = .data }, onWidgetHelp: { presentedSheet = .widgetHelp }, onSafety: { presentedSheet = .safetyNotice })
                             .toolbar {
                                 ToolbarItem(placement: .topBarTrailing) {
                                     Button { presentedSheet = nil } label: {

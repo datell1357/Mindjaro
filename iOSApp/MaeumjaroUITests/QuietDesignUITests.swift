@@ -11,12 +11,13 @@ final class QuietDesignUITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    private func launchEmpty() -> XCUIApplication {
+    private func launchEmpty(largeText: Bool = false) -> XCUIApplication {
         let app = XCUIApplication(bundleIdentifier: bundleID)
         app.launchArguments += [
             "-MaeumjaroFixtureID", UUID().uuidString,
             "-MaeumjaroFixture", "empty"
         ]
+        if largeText { app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"] }
         app.launch()
         return app
     }
@@ -142,6 +143,11 @@ final class QuietDesignUITests: XCTestCase {
 
         guard require(app.buttons["기록 보기"], in: app, name: "records-action-after-completion") else { return }
         guard require(app.buttons["다시 실행"], in: app, name: "restart-action-after-completion") else { return }
+        let phrase = app.staticTexts["completion-phrase"]
+        guard require(phrase, in: app, name: "completion-phrase") else { return }
+        XCTAssertFalse(phrase.label.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        XCTAssertTrue(phrase.isHittable, "The quote must be visible immediately without scrolling past the pen")
+        XCTAssertTrue(app.buttons["기록 보기"].isHittable)
         let completedScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         completedScreenshot.name = "quiet-after-completion-rendered"
         completedScreenshot.lifetime = .keepAlways
@@ -153,6 +159,50 @@ final class QuietDesignUITests: XCTestCase {
         let count = todayCount(app)
         guard require(count, in: app, name: "today-record-count") else { return }
         XCTAssertEqual(count.value as? String, "1회")
+        app.tabBars.buttons["홈"].tap()
+        app.buttons["settings-open"].tap()
+        let total = app.staticTexts["settings-weekly-total"]
+        guard require(total, in: app, name: "weekly-total-after-completion") else { return }
+        XCTAssertEqual(total.label, "총 1회")
+        let chart = app.descendants(matching: .any)["settings-weekly-chart"]
+        guard require(chart, in: app, name: "weekly-chart-after-completion") else { return }
+        XCTAssertTrue((chart.value as? String)?.contains("1회") == true)
+        let chartScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        chartScreenshot.name = "settings-after-completion"
+        chartScreenshot.lifetime = .keepAlways
+        add(chartScreenshot)
+    }
+
+    func testOnboardingCentersContentAndLargeTextRemainsNavigable() {
+        let app = launchEmpty()
+        let title = app.staticTexts["마음자로"]
+        guard require(title, in: app, name: "onboarding-title") else { return }
+        let message = app.staticTexts["잠깐 멈추고 지금의 선택을 돌아보는 짧은 비의료적 자기조절 의식이에요."]
+        guard require(message, in: app, name: "onboarding-message") else { return }
+        let contentFrame = title.frame.union(message.frame)
+        XCTAssertLessThan(abs(contentFrame.midY - app.frame.midY), app.frame.height * 0.10)
+        let centered = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        centered.name = "onboarding-centered"
+        centered.lifetime = .keepAlways
+        add(centered)
+        app.terminate()
+        let largeApp = launchEmpty(largeText: true)
+        XCTAssertTrue(completeOnboarding(largeApp))
+    }
+
+    func testSettingsChartUsesSevenDaysOfStoredRecords() {
+        let app = XCUIApplication(bundleIdentifier: bundleID)
+        app.launchArguments = ["-MaeumjaroFixtureID", UUID().uuidString, "-MaeumjaroFixture", "free-boundary"]
+        app.launch()
+        guard require(app.buttons["settings-open"], in: app, name: "settings-open-populated") else { return }
+        app.buttons["settings-open"].tap()
+        let total = app.staticTexts["settings-weekly-total"]
+        guard require(total, in: app, name: "weekly-total-populated") else { return }
+        XCTAssertEqual(total.label, "총 7회", "Exclude the older 24 records from the weekly chart")
+        let chart = app.descendants(matching: .any)["settings-weekly-chart"]
+        guard require(chart, in: app, name: "weekly-chart-populated") else { return }
+        XCTAssertEqual((chart.value as? String)?.components(separatedBy: ", ").count, 7)
+        XCTAssertTrue(chart.isHittable)
     }
 
     func testQuietRitualCloseCancelsWithoutRecording() {

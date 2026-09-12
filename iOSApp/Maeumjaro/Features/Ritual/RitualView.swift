@@ -46,7 +46,20 @@ struct RitualView: View {
     }
     @ViewBuilder private var content: some View {
         GeometryReader { proxy in
-            if model.state.phase == .completed || dynamicTypeSize.isAccessibilitySize {
+            if model.state.phase == .completed, let date = model.completionDateValue {
+                VStack(spacing: 0) {
+                    HStack { Spacer(); closeButton }
+                    GeometryReader { completionProxy in
+                        ScrollView {
+                            RitualCompletionView(intensity: model.state.intensity, completedAt: date, phraseText: model.phraseText, palette: palette, onRestart: model.reset, onRecords: onRecords)
+                                .frame(minHeight: completionProxy.size.height)
+                        }
+                        .scrollBounceBehavior(.basedOnSize)
+                    }
+                }
+                .padding(.horizontal, DesignTokens.spacing6)
+                .padding(.vertical, DesignTokens.spacing4)
+            } else if dynamicTypeSize.isAccessibilitySize {
                 ScrollView { ritualContent(penHeight: max(240, proxy.size.height - 140)) }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -59,16 +72,7 @@ struct RitualView: View {
         VStack(spacing: 0) {
             HStack {
                 Spacer()
-                Button(action: close) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 16, weight: .semibold))
-                        .frame(width: DesignTokens.minimumTouchTarget, height: DesignTokens.minimumTouchTarget)
-                }
-                .accessibilityLabel("닫기")
-                    .foregroundStyle(palette.ink.color)
-                    .disabled(state.phase == .saving)
-                    .tint(palette.accent.color)
-                    .accessibilityIdentifier("ritual-close")
+                closeButton
             }
             Spacer(minLength: 8)
             InjectionCanvas(state: state, initialFill: model.reducer.profile.initialFill, reduceMotion: reducedMotion || systemReduceMotion)
@@ -97,12 +101,23 @@ struct RitualView: View {
             .frame(maxWidth: 240)
             Spacer(minLength: 8)
             if state.phase == .saveFailed { Button("기록 다시 시도", action: model.retry).frame(minHeight: DesignTokens.minimumTouchTarget).tint(palette.accent.color) }
-            if state.phase == .completed, let date = model.completionDateValue { RitualCompletionView(intensity: state.intensity, completedAt: date, palette: palette, onRestart: model.reset, onRecords: onRecords) }
         }
         .padding(.horizontal, DesignTokens.spacing6)
         .padding(.vertical, DesignTokens.spacing4)
         .background(palette.background.color)
         .contentShape(Rectangle())
+    }
+    private var closeButton: some View {
+        Button(action: close) {
+            Image(systemName: "xmark")
+                .font(.system(size: 16, weight: .semibold))
+                .frame(width: DesignTokens.minimumTouchTarget, height: DesignTokens.minimumTouchTarget)
+        }
+        .accessibilityLabel("닫기")
+        .foregroundStyle(palette.ink.color)
+        .disabled(model.state.phase == .saving)
+        .tint(palette.accent.color)
+        .accessibilityIdentifier("ritual-close")
     }
     private func close() {
         guard model.state.phase != .saving else { return }

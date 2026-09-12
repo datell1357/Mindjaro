@@ -1,8 +1,10 @@
 import SwiftUI
+import Charts
 import MaeumjaroDomain
 
 struct SettingsView: View {
     @State private var model: SettingsViewModel
+    @State private var historyModel: HistoryViewModel
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.colorScheme) private var colorScheme
@@ -12,13 +14,24 @@ struct SettingsView: View {
     let onWidgetHelp: () -> Void
     let onSafety: () -> Void
 
-    init(model: SettingsViewModel, onPro: @escaping () -> Void = {}, onDataManagement: @escaping () -> Void = {}, onWidgetHelp: @escaping () -> Void = {}, onSafety: @escaping () -> Void = {}) {
-        _model = State(initialValue: model); self.onPro = onPro; self.onDataManagement = onDataManagement; self.onWidgetHelp = onWidgetHelp; self.onSafety = onSafety
+    init(model: SettingsViewModel, historyModel: HistoryViewModel, onPro: @escaping () -> Void = {}, onDataManagement: @escaping () -> Void = {}, onWidgetHelp: @escaping () -> Void = {}, onSafety: @escaping () -> Void = {}) {
+        _model = State(initialValue: model); _historyModel = State(initialValue: historyModel); self.onPro = onPro; self.onDataManagement = onDataManagement; self.onWidgetHelp = onWidgetHelp; self.onSafety = onSafety
     }
 
     var body: some View {
         let palette = ThemePalette.palette(for: model.settings.themeID, colorScheme: colorScheme, contrast: colorSchemeContrast)
         Form {
+            Section {
+                if historyModel.isLoading {
+                    ProgressView("기록 불러오는 중")
+                } else if let error = historyModel.errorMessage {
+                    Text(error)
+                    Button("다시 시도") { Task { await historyModel.load() } }
+                } else if let report = historyModel.report {
+                    SettingsHistoryChart(report: report, palette: palette)
+                }
+            } header: { Text("최근 7일 기록").font(DesignTokens.font(for: .sectionTitle)).foregroundStyle(palette.ink.color) }
+            .listRowBackground(palette.surface.color)
             Section {
                 ForEach(Intensity.allCases, id: \.self) { intensity in
                     Button { Task { await model.setIntensity(intensity) } } label: {
@@ -53,11 +66,68 @@ struct SettingsView: View {
             .tint(palette.accent.color)
             .scrollContentBackground(.hidden)
             .background(palette.background.color.ignoresSafeArea())
-            .task { model.refreshIntensity() }
+            .task { model.refreshIntensity(); await historyModel.load() }
             .onChange(of: scenePhase) { _, phase in
-                if phase == .active { model.refreshIntensity() }
+                if phase == .active { model.refreshIntensity(); Task { await historyModel.load() } }
             }
     }
 
     private func binding<Value>(get: @escaping @MainActor @Sendable () -> Value, set: @escaping @MainActor @Sendable (Value) -> Void) -> Binding<Value> { Binding(get: get, set: set) }
+}
+
+struct SettingsHistoryChart: View {
+    let report: AnalyticsReport
+    let palette: ThemePalette
+
+    /// Use the same persisted local-day buckets as History, including zero days.
+    static func days(in report: AnalyticsReport) -> [DailyAnalytics] {
+        report.period.dates.suffix(7).map { date in
+            report.daily[date] ?? DailyAnalytics(localDate: date, count: 0, intensitySum: 0)
+        }
+    }
+
+    var body: some View {
+        let days = Self.days(in: report)
+        let total = days.reduce(0) { $0 + $1.count }
+        let maximum = max(2, days.map(\.count).max() ?? 0)
+        VStack(alignment: .leading, spacing: DesignTokens.spacing4) {
+            Text("총 \(total)회")
+                .font(DesignTokens.font(for: .screenTitle))
+                .accessibilityIdentifier("settings-weekly-total")
+            Chart(days, id: \.localDate) { day in
+                BarMark(x: .value("날짜", shortDate(day.localDate)), y: .value("완료 횟수", day.count))
+                    .foregroundStyle(palette.accent.color)
+                    .cornerRadius(4)
+                    .annotation(position: .top) {
+                        Text("\(day.count)")
+                            .font(.caption)
+                            .foregroundStyle(palette.ink.color)
+                    }
+            }
+            .chartYScale(domain: 0...maximum)
+            .chartYAxis {
+                AxisMarks(values: [0, (maximum + 1) / 2, maximum]) { _ in
+                    AxisGridLine()
+                    AxisValueLabel()
+                }
+            }
+            .frame(height: 180)
+            .padding(.top, 8)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("최근 7일 완료 횟수")
+            .accessibilityValue(days.map { String(localized: "\($0.localDate) \($0.count)회") }.joined(separator: ", "))
+            .accessibilityIdentifier("settings-weekly-chart")
+            Text(total == 0 ? "아직 최근 7일 기록이 없어요. 마음 정리를 마치면 여기에 표시돼요." : "오늘을 포함한 최근 7일의 완료 횟수예요.")
+                .font(DesignTokens.font(for: .secondary))
+                .foregroundStyle(palette.secondaryInk.color)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.vertical, DesignTokens.spacing2)
+    }
+
+    private func shortDate(_ date: String) -> String {
+        let parts = date.split(separator: "-")
+        guard parts.count == 3, let month = Int(parts[1]), let day = Int(parts[2]) else { return date }
+        return "\(month)/\(day)"
+    }
 }
