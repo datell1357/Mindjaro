@@ -46,6 +46,16 @@ final class SettingsViewModel {
         selectedIntensity = strengthStore.read()
     }
 
+    func refresh() async {
+        refreshIntensity()
+        do {
+            settings = try await settingsRepository.load()
+            errorMessage = nil
+        } catch {
+            errorMessage = String(localized: "설정을 불러오지 못했어요. 다시 시도해 주세요.")
+        }
+    }
+
     func setHapticsEnabled(_ value: Bool) async {
         let previous = settings
         settings.hapticsEnabled = value

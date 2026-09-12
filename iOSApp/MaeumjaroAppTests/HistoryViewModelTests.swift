@@ -4,7 +4,7 @@ import XCTest
 
 final class HistoryViewModelTests: XCTestCase {
     @MainActor
-    func testSettingsWeeklyChartIncludesZeroDaysAndExcludesOlderRecordsAcrossYearBoundary() {
+    func testWeeklyChartIncludesZeroDaysAndExcludesOlderRecordsAcrossYearBoundary() {
         let window = HistoryWindow.free(today: "2026-01-03")!
         let events = ["2025-12-27", "2025-12-28", "2026-01-03", "2026-01-03"].map { day in
             InjectionEvent(id: UUID(), startedAtUTC: .distantPast, completedAtUTC: .distantPast, createdAtUTC: .distantPast,
@@ -12,10 +12,13 @@ final class HistoryViewModelTests: XCTestCase {
                            phraseID: "test", animationDurationMilliseconds: 1800, interruptedCount: 0, appVersion: "test")
         }
         let report = AnalyticsAggregator().aggregate(events: events, period: window)
-        let days = SettingsHistoryChart.days(in: report)
+        let days = WeeklyHistoryChart.days(in: report)
         XCTAssertEqual(days.map(\.localDate), ["2025-12-28", "2025-12-29", "2025-12-30", "2025-12-31", "2026-01-01", "2026-01-02", "2026-01-03"])
         XCTAssertEqual(days.map(\.count), [1, 0, 0, 0, 0, 0, 2])
-        let empty = SettingsHistoryChart.days(in: AnalyticsAggregator().aggregate(events: [], period: window))
+        let proWindow = HistoryWindow.pro(today: "2026-01-03")!
+        let proDays = WeeklyHistoryChart.days(in: AnalyticsAggregator().aggregate(events: events, period: proWindow))
+        XCTAssertEqual(proDays, days, "Pro's week-aligned window must not introduce future days into the weekly chart")
+        let empty = WeeklyHistoryChart.days(in: AnalyticsAggregator().aggregate(events: [], period: window))
         XCTAssertEqual(empty.count, 7)
         XCTAssertTrue(empty.allSatisfy { $0.count == 0 })
     }

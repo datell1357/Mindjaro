@@ -3,12 +3,10 @@ import MaeumjaroDomain
 
 struct HomeView: View {
     let onStart: () -> Void
-    let onOpenSettings: () -> Void
     let palette: ThemePalette
 
-    init(palette: ThemePalette = .quietIvory, onStart: @escaping () -> Void, onOpenSettings: @escaping () -> Void) {
+    init(palette: ThemePalette = .quietIvory, onStart: @escaping () -> Void) {
         self.onStart = onStart
-        self.onOpenSettings = onOpenSettings
         self.palette = palette
     }
 
@@ -37,16 +35,7 @@ struct HomeView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            Button(action: onOpenSettings) {
-                Image(systemName: "gearshape")
-                    .font(.system(size: 22, weight: .medium))
-                    .frame(width: DesignTokens.minimumTouchTarget, height: DesignTokens.minimumTouchTarget)
-            }
-            .accessibilityIdentifier("settings-open")
-            .accessibilityLabel("설정")
-            .foregroundStyle(palette.ink.color)
-            .padding(.top, DesignTokens.spacing2)
-            .padding(.trailing, DesignTokens.spacing4)
+
         }
     }
 }

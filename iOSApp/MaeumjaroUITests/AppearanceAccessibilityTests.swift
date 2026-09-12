@@ -100,12 +100,12 @@ final class AppearanceAccessibilityTests: XCTestCase {
             try audit(app, name: "\(appearanceName)-history")
 
             app.tabBars.buttons["홈"].tap()
-            app.buttons["settings-open"].tap()
+            app.tabBars.buttons["설정"].tap()
             guard require(app.buttons["settings-intensity-1"], in: app, name: "\(appearanceName)-settings-content") else { return }
             captureSurface("\(appearanceName)-settings", from: app)
             try audit(app, name: "\(appearanceName)-settings")
 
-            app.buttons["settings-close"].tap()
+            app.tabBars.buttons["홈"].tap()
             app.tabBars.buttons["기록"].tap()
             let baselineToday = app.descendants(matching: .any).matching(
                 NSPredicate(format: "label == %@", "오늘 기록")

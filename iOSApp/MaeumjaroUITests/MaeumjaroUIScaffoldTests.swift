@@ -116,7 +116,7 @@ final class MaeumjaroRealUITests: XCTestCase {
         let app = launch(fixture: "empty")
         guard completeOnboarding(app) else { return }
         XCTAssertTrue(app.tabBars.buttons["기록"].exists)
-        XCTAssertTrue(app.buttons["settings-open"].exists)
+        XCTAssertTrue(app.tabBars.buttons["설정"].exists)
         XCTAssertFalse(app.alerts.firstMatch.exists, "Onboarding must not request a permission")
     }
 
@@ -383,7 +383,7 @@ final class MaeumjaroRealUITests: XCTestCase {
         let app = launch(fixture: "empty")
         guard completeOnboarding(app) else { return }
         app.tabBars.buttons["홈"].tap()
-        app.buttons["settings-open"].tap()
+        app.tabBars.buttons["설정"].tap()
         let sound = app.switches["소리"]
         waitFor(sound)
         let before = sound.value as? String
@@ -405,7 +405,7 @@ final class MaeumjaroRealUITests: XCTestCase {
         app.terminate()
         app.launch()
         app.tabBars.buttons["홈"].tap()
-        app.buttons["settings-open"].tap()
+        app.tabBars.buttons["설정"].tap()
         let relaunchedSound = app.switches["소리"]
         waitFor(relaunchedSound)
         XCTAssertEqual(relaunchedSound.value as? String, after)
@@ -457,9 +457,9 @@ final class MaeumjaroRealUITests: XCTestCase {
     func testProDataManagementShareCancellationDeletePathsAndRelaunch() {
         let fixtureID = UUID()
         let app = launch(fixture: "pro-boundary", fixtureID: fixtureID)
-        waitFor(app.buttons["settings-open"])
+        waitFor(app.tabBars.buttons["설정"])
         app.tabBars.buttons["홈"].tap()
-        app.buttons["settings-open"].tap()
+        app.tabBars.buttons["설정"].tap()
         guard openDataManagement(app) else { return }
 
         let forest = app.buttons["Forest Mist"]
@@ -524,7 +524,7 @@ final class MaeumjaroRealUITests: XCTestCase {
         )
         XCTAssertGreaterThan(seededDateRows.count, 0, "Delete cancellation must preserve isolated fixture records")
         app.tabBars.buttons["홈"].tap()
-        app.buttons["settings-open"].tap()
+        app.tabBars.buttons["설정"].tap()
         guard openDataManagement(app) else { return }
         let deleteAllAgain = app.buttons["모든 기록 삭제"]
         guard scrollIntoView(deleteAllAgain, in: app) else { return }
@@ -539,10 +539,10 @@ final class MaeumjaroRealUITests: XCTestCase {
 
         app.terminate()
         app.launch()
-        waitFor(app.buttons["settings-open"])
+        waitFor(app.tabBars.buttons["설정"])
         XCTAssertFalse(app.buttons["완료"].exists, "Relaunch must remain past onboarding")
         app.tabBars.buttons["홈"].tap()
-        app.buttons["settings-open"].tap()
+        app.tabBars.buttons["설정"].tap()
         guard openDataManagement(app) else { return }
         let forestAfterRelaunch = app.buttons["Forest Mist"]
         guard scrollIntoView(forestAfterRelaunch, in: app) else { return }

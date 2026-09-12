@@ -1,6 +1,6 @@
 import XCTest
 
-/// Focused regression coverage for the quiet two-tab shell and pen-led ritual.
+/// Focused regression coverage for the three-tab shell and pen-led ritual.
 /// Each test gets an isolated empty fixture so completion counts are deterministic.
 @MainActor
 final class QuietDesignUITests: XCTestCase {
@@ -83,8 +83,15 @@ final class QuietDesignUITests: XCTestCase {
 
         XCTAssertTrue(app.buttons["ritual-start"].exists)
         XCTAssertTrue(app.tabBars.buttons["기록"].exists)
-        XCTAssertTrue(app.buttons["settings-open"].exists)
-        XCTAssertEqual(app.buttons["settings-open"].label, "설정")
+        XCTAssertTrue(app.tabBars.buttons["설정"].exists)
+        XCTAssertEqual(app.tabBars.buttons.count, 3)
+        XCTAssertEqual(app.tabBars.buttons.element(boundBy: 2).label, "설정")
+        XCTAssertFalse(app.buttons["settings-open"].exists)
+        app.tabBars.buttons["설정"].tap()
+        XCTAssertTrue(app.scrollViews["settings-screen"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.tabBars.buttons["홈"].isHittable)
+        XCTAssertFalse(app.buttons["settings-close"].exists)
+        XCTAssertFalse(app.descendants(matching: .any)["history-weekly-chart"].exists)
     }
 
     func testQuietRitualCanvasFillsScreenWithoutCoveringCloseControl() {
@@ -159,16 +166,14 @@ final class QuietDesignUITests: XCTestCase {
         let count = todayCount(app)
         guard require(count, in: app, name: "today-record-count") else { return }
         XCTAssertEqual(count.value as? String, "1회")
-        app.tabBars.buttons["홈"].tap()
-        app.buttons["settings-open"].tap()
-        let total = app.staticTexts["settings-weekly-total"]
+        let total = app.staticTexts["history-weekly-total"]
         guard require(total, in: app, name: "weekly-total-after-completion") else { return }
         XCTAssertEqual(total.label, "총 1회")
-        let chart = app.descendants(matching: .any)["settings-weekly-chart"]
+        let chart = app.descendants(matching: .any)["history-weekly-chart"]
         guard require(chart, in: app, name: "weekly-chart-after-completion") else { return }
         XCTAssertTrue((chart.value as? String)?.contains("1회") == true)
         let chartScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
-        chartScreenshot.name = "settings-after-completion"
+        chartScreenshot.name = "history-after-completion"
         chartScreenshot.lifetime = .keepAlways
         add(chartScreenshot)
     }
@@ -190,19 +195,50 @@ final class QuietDesignUITests: XCTestCase {
         XCTAssertTrue(completeOnboarding(largeApp))
     }
 
-    func testSettingsChartUsesSevenDaysOfStoredRecords() {
+    func testHistoryChartUsesSevenDaysOfStoredRecords() {
         let app = XCUIApplication(bundleIdentifier: bundleID)
         app.launchArguments = ["-MaeumjaroFixtureID", UUID().uuidString, "-MaeumjaroFixture", "free-boundary"]
         app.launch()
-        guard require(app.buttons["settings-open"], in: app, name: "settings-open-populated") else { return }
-        app.buttons["settings-open"].tap()
-        let total = app.staticTexts["settings-weekly-total"]
+        guard require(app.tabBars.buttons["기록"], in: app, name: "history-populated") else { return }
+        app.tabBars.buttons["기록"].tap()
+        let total = app.staticTexts["history-weekly-total"]
         guard require(total, in: app, name: "weekly-total-populated") else { return }
         XCTAssertEqual(total.label, "총 7회", "Exclude the older 24 records from the weekly chart")
-        let chart = app.descendants(matching: .any)["settings-weekly-chart"]
+        let chart = app.descendants(matching: .any)["history-weekly-chart"]
         guard require(chart, in: app, name: "weekly-chart-populated") else { return }
         XCTAssertEqual((chart.value as? String)?.components(separatedBy: ", ").count, 7)
         XCTAssertTrue(chart.isHittable)
+    }
+
+    func testSettingsTabPersistsSelectionAndPushesHelpWithoutModal() {
+        let app = launchEmpty()
+        guard completeOnboarding(app) else { return }
+        app.tabBars.buttons["설정"].tap()
+        let intensity = app.buttons["settings-intensity-5"]
+        guard require(intensity, in: app, name: "settings-intensity") else { return }
+        intensity.tap()
+        let selected = NSPredicate(format: "value == %@", "선택됨")
+        expectation(for: selected, evaluatedWith: intensity)
+        waitForExpectations(timeout: 5)
+        app.tabBars.buttons["기록"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["history-weekly-chart"].waitForExistence(timeout: 5))
+        app.tabBars.buttons["설정"].tap()
+        XCTAssertEqual(intensity.value as? String, "선택됨")
+        let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        screenshot.name = "settings-third-tab"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+        let help = app.buttons["위젯 도움말"]
+        for _ in 0..<6 where !help.isHittable { app.swipeUp() }
+        XCTAssertTrue(help.isHittable)
+        help.tap()
+        XCTAssertTrue(app.navigationBars["위젯 도움말"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.tabBars.buttons["설정"].isHittable)
+        let back = app.navigationBars.buttons.element(boundBy: 0)
+        XCTAssertTrue(back.isHittable)
+        back.tap()
+        XCTAssertTrue(app.scrollViews["settings-screen"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["settings-close"].exists)
     }
 
     func testQuietRitualCloseCancelsWithoutRecording() {

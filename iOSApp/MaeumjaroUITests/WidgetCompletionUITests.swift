@@ -269,8 +269,8 @@ final class WidgetCompletionUITests: XCTestCase {
 
         relaunched.activate()
         relaunched.tabBars.buttons["홈"].tap()
-        guard waitFor(relaunched.buttons["settings-open"], "settings open") else { return }
-        relaunched.buttons["settings-open"].tap()
+        guard waitFor(relaunched.tabBars.buttons["설정"], "settings open") else { return }
+        relaunched.tabBars.buttons["설정"].tap()
         let management = relaunched.buttons["데이터 관리"]
         for _ in 0..<8 where !management.isHittable { relaunched.swipeUp() }
         guard waitFor(management, "data management") else { return }

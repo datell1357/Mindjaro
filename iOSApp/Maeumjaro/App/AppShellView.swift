@@ -9,7 +9,7 @@ struct AppShellView: View {
     @State private var loadError: Error?
     @State private var selectedTab = 0
     @State private var entitlement: Entitlement = .loading
-    @State private var presentedSheet: ShellSheet?
+    @State private var settingsPath: [SettingsDestination] = []
     @State private var pendingSource: EventSource?
     @State private var refreshID = UUID()
     @State private var ritualPresentation: RitualPresentation?
@@ -66,36 +66,6 @@ struct AppShellView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await loadSettings(); await dependencies.entitlementStore.refresh() } }
         }
-        .sheet(item: $presentedSheet, onDismiss: { Task { await loadSettings() } }) { sheet in
-            NavigationStack {
-                switch sheet {
-                case .settings:
-                    if let settings {
-                        SettingsView(model: SettingsViewModel(initialSettings: settings, settingsRepository: dependencies.settingsRepository, strengthStore: dependencies.strengthStore, onStrengthChanged: { try dependencies.projection.strengthChanged(to: $0) }), historyModel: HistoryViewModel(eventRepository: dependencies.events), onPro: { presentedSheet = .pro }, onDataManagement: { presentedSheet = .data }, onWidgetHelp: { presentedSheet = .widgetHelp }, onSafety: { presentedSheet = .safetyNotice })
-                            .toolbar {
-                                ToolbarItem(placement: .topBarTrailing) {
-                                    Button { presentedSheet = nil } label: {
-                                        Image(systemName: "xmark").frame(width: 44, height: 44)
-                                    }
-                                    .accessibilityLabel("닫기")
-                                    .accessibilityIdentifier("settings-close")
-                                }
-                            }
-                    }
-                case .widgetHelp: WidgetHelpView(palette: ThemePalette.palette(for: settings?.themeID ?? .quietIvory, colorScheme: colorScheme, contrast: colorSchemeContrast), onDismiss: { presentedSheet = .settings })
-                case .safetyNotice: SafetyNoticeView()
-                case .pro: ProPaywallView(model: ProPaywallViewModel(entitlement: entitlement, store: dependencies.entitlementStore))
-                case .data:
-                    if let settings {
-                        DataManagementView(model: DataManagementViewModel(settings: settings, entitlement: entitlement, eventRepository: dependencies.events, settingsRepository: dependencies.settingsRepository, onWidgetThemeChange: { theme in
-                            _ = try await dependencies.projection.themeChanged(to: theme)
-                        }, onEventsDeleted: {
-                            _ = try await dependencies.projection.projectAfterDeletion()
-                        }, currentEntitlement: { await dependencies.entitlementStore.entitlement }))
-                    }
-                }
-            }
-        }
         .fullScreenCover(item: $ritualPresentation, onDismiss: { Task { await loadSettings() } }) { presentation in
             RitualView(model: presentation.model, palette: ThemePalette.palette(for: presentation.settings.themeID, colorScheme: colorScheme, contrast: colorSchemeContrast), haptics: SystemRitualHapticEngine(enabled: presentation.settings.hapticsEnabled), sound: SystemRitualSoundEngine(enabled: presentation.settings.soundEnabled), reducedMotion: presentation.settings.reducedMotionEnabled, onRecords: { selectedTab = 1 })
                 #if DEBUG && MAEUMJARO_QA_FIXTURES
@@ -127,26 +97,48 @@ struct AppShellView: View {
 
     @ViewBuilder private func mainShell(settings: AppSettings) -> some View {
         let palette = ThemePalette.palette(for: settings.themeID, colorScheme: colorScheme, contrast: colorSchemeContrast)
-        NavigationStack(path: Binding(get: { router.path }, set: { router.replacePath($0) })) {
-            TabView(selection: $selectedTab) {
-                HomeView(palette: palette, onStart: { openRitual(source: .app) }, onOpenSettings: { presentedSheet = .settings })
-                    .tabItem { Image(systemName: "pencil").accessibilityLabel("홈") }.tag(0)
-                HistoryView(viewModel: HistoryViewModel(eventRepository: dependencies.events, entitlement: entitlement, onEventsDeleted: {
-                    do { _ = try await dependencies.projection.projectAfterDeletion() }
-                    catch { loadError = error }
-                }), palette: palette)
-                    .id(refreshID)
-                    .tabItem { Image(systemName: "clock.arrow.circlepath").accessibilityLabel("기록") }.tag(1)
+        TabView(selection: $selectedTab) {
+            NavigationStack(path: Binding(get: { router.path }, set: { router.replacePath($0) })) {
+                HomeView(palette: palette, onStart: { openRitual(source: .app) })
+                    .navigationDestination(for: AppRoute.self) { route in
+                        switch route {
+                        case .widgetHelp: WidgetHelpView(palette: palette)
+                        case .safetyNotice: SafetyNoticeView()
+                        case .ritual(let source):
+                            ProgressView().accessibilityLabel("준비 중이에요")
+                                .task { openRitual(source: source) }
+                        }
+                    }
             }
-            .navigationDestination(for: AppRoute.self) { route in
-                switch route {
-                case .widgetHelp: WidgetHelpView(palette: palette)
-                case .safetyNotice: SafetyNoticeView()
-                case .ritual(let source):
-                    ProgressView().accessibilityLabel("준비 중이에요")
-                        .task { openRitual(source: source) }
+            .tabItem { Image(systemName: "pencil").accessibilityLabel("홈") }.tag(0)
+
+            HistoryView(viewModel: HistoryViewModel(eventRepository: dependencies.events, entitlement: entitlement, onEventsDeleted: {
+                do { _ = try await dependencies.projection.projectAfterDeletion() }
+                catch { loadError = error }
+            }), palette: palette)
+                .id(refreshID)
+                .tabItem { Image(systemName: "clock.arrow.circlepath").accessibilityLabel("기록") }.tag(1)
+
+            NavigationStack(path: $settingsPath) {
+                SettingsView(
+                    model: SettingsViewModel(initialSettings: settings, settingsRepository: dependencies.settingsRepository, strengthStore: dependencies.strengthStore, onStrengthChanged: { try dependencies.projection.strengthChanged(to: $0) }),
+                    onPro: { settingsPath.append(.pro) },
+                    onDataManagement: { settingsPath.append(.data) },
+                    onWidgetHelp: { settingsPath.append(.widgetHelp) },
+                    onSafety: { settingsPath.append(.safetyNotice) }
+                )
+                .navigationDestination(for: SettingsDestination.self) { destination in
+                    settingsDestination(destination, settings: settings, palette: palette)
+                        .toolbar(.visible, for: .navigationBar)
+                        .toolbarTitleDisplayMode(.inline)
                 }
             }
+            .tabItem { Image(systemName: "gearshape").accessibilityLabel("설정") }.tag(2)
+        }
+        .tint(palette.accent.color)
+        .onChange(of: selectedTab) { _, _ in Task { await loadSettings() } }
+        .onChange(of: settingsPath) { _, path in
+            if path.isEmpty { Task { await loadSettings() } }
         }
         #if DEBUG && MAEUMJARO_QA_FIXTURES
         .overlay(alignment: .bottomTrailing) {
@@ -167,6 +159,26 @@ struct AppShellView: View {
             }
         }
         #endif
+    }
+
+    @ViewBuilder private func settingsDestination(_ destination: SettingsDestination, settings: AppSettings, palette: ThemePalette) -> some View {
+        switch destination {
+        case .widgetHelp:
+            ScrollView { WidgetHelpView(palette: palette) }
+                .background(palette.background.color.ignoresSafeArea())
+        case .safetyNotice:
+            ScrollView { SafetyNoticeView() }
+                .foregroundStyle(palette.ink.color)
+                .background(palette.background.color.ignoresSafeArea())
+        case .pro:
+            ProPaywallView(model: ProPaywallViewModel(entitlement: entitlement, store: dependencies.entitlementStore))
+        case .data:
+            DataManagementView(model: DataManagementViewModel(settings: settings, entitlement: entitlement, eventRepository: dependencies.events, settingsRepository: dependencies.settingsRepository, onWidgetThemeChange: { theme in
+                _ = try await dependencies.projection.themeChanged(to: theme)
+            }, onEventsDeleted: {
+                _ = try await dependencies.projection.projectAfterDeletion()
+            }, currentEntitlement: { await dependencies.entitlementStore.entitlement }))
+        }
     }
 
     private func openRitual(source: EventSource) {
@@ -208,9 +220,8 @@ struct AppShellView: View {
     }
 }
 
-private enum ShellSheet: String, Identifiable {
-    case settings, widgetHelp, safetyNotice, pro, data
-    var id: String { rawValue }
+private enum SettingsDestination: Hashable {
+    case widgetHelp, safetyNotice, pro, data
 }
 
 private struct RitualPresentation: Identifiable {

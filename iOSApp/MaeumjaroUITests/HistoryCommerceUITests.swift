@@ -131,8 +131,8 @@ final class HistoryCommerceUITests: XCTestCase {
         let app = launch("offline")
         guard completeOnboarding(app) else { return }
         app.tabBars.buttons["홈"].tap()
-        require(app.buttons["settings-open"])
-        app.buttons["settings-open"].tap()
+        require(app.tabBars.buttons["설정"])
+        app.tabBars.buttons["설정"].tap()
         let pro = app.buttons["Pro 기능 보기"]
         for _ in 0..<8 where !pro.isHittable { app.swipeUp() }
         guard require(pro) else { return }
